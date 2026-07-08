@@ -40,6 +40,11 @@
   .quizbtn .ic{font-size:1.1rem}
   .quizbtn.on{outline:2px solid var(--ink);outline-offset:2px}
 
+  .consolebtn{display:flex;align-items:center;gap:10px;width:calc(100% - 28px);margin:10px 14px 0;font:inherit;font-weight:800;font-size:.88rem;cursor:pointer;border:none;border-radius:14px;padding:13px 15px;color:#fff;background:linear-gradient(135deg,var(--code-bg),#3a3d5c);box-shadow:0 4px 14px rgba(32,34,58,.28);transition:.16s}
+  .consolebtn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(32,34,58,.36)}
+  .consolebtn .ic{font-size:1.1rem}
+  .consolebtn.on{outline:2px solid var(--ink);outline-offset:2px}
+
   .trimtabs .row{display:flex;flex-direction:column;gap:8px;padding:14px}
   .trimtab{font:inherit;cursor:pointer;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:12px 14px;transition:.16s}
   .trimtab .tt{font-weight:800;font-size:.86rem;display:flex;align-items:center;gap:8px}
@@ -229,6 +234,7 @@
     <button class="sidebar-close" id="sidebarCloseBtn" aria-label="Ocultar menú" title="Ocultar menú">✕</button>
   </div>
   <button class="quizbtn" id="quizNavBtn"><span class="ic">🎮</span> Modo Quiz — practicá</button>
+  <button class="consolebtn" id="consoleNavBtn"><span class="ic">🐍</span> Consola libre</button>
   <div class="trimtabs"><div class="row" id="trimrow"></div></div>
   <nav class="steps"><ul id="nav"></ul></nav>
 </aside>
@@ -256,7 +262,7 @@
 const TRIMESTRES = [
   {
     t:1, unidad:"Unidad 1", tema:"Fundamentos de Python",
-    desc:"print · variables · tipos · operadores · lógica",
+    desc:"print · variables · tipos · funciones · operadores · lógica",
     modules:[
       {
         id:"print", title:"print() y comentarios", sub:"Cómo Python te habla, y cómo dejás notas",
@@ -281,6 +287,14 @@ const TRIMESTRES = [
         note:{warn:true,txt:'<code>"7"</code> con comillas es texto, no número. <code>"7" + "7"</code> da <code>"77"</code>, pero <code>7 + 7</code> da <code>14</code>. Probalo abajo.'},
         code:'print(type(7))\nprint(type(3.5))\nprint(type("hola"))\nprint(type(True))\n\n# la trampa clásica:\nprint(7 + 7)\nprint("7" + "7")',
         quiz:{q:"¿De qué tipo es precio = 199.99 ?",opts:["int","float","str"],answer:1,okMsg:"¡Correcto! Tiene decimales → float.",noMsg:"Tiene coma decimal → es float."}
+      },
+      {
+        id:"funciones", title:"Funciones: def y return", sub:"Empaquetar código para reutilizarlo",
+        lead:"Una <strong>función</strong> es un bloque de código con nombre que podés ejecutar las veces que quieras. Se define con <strong>def</strong>, puede recibir <strong>parámetros</strong> (datos de entrada) y devolver un resultado con <strong>return</strong>. El código de adentro no corre hasta que la <em>llamás</em> por su nombre.",
+        cards:[{tag:"def",desc:"Define una función nueva",ex:"def saludar():"},{tag:"parámetros",desc:"Datos que la función recibe",ex:"def sumar(a, b):"},{tag:"return",desc:"Devuelve un resultado",ex:"return a + b"},{tag:"llamar",desc:"Ejecuta la función",ex:"sumar(2, 3)"}],
+        note:{warn:true,txt:"<code>print()</code> y <code>return</code> no son lo mismo: print() solo muestra algo en pantalla, pero <b>return</b> devuelve el valor para que lo guardes en una variable o sigas operando con él."},
+        code:'def sumar(a, b):\n    return a + b\n\nresultado = sumar(3, 4)\nprint(resultado)\n\n# aplicación en la vida real: calcular un descuento\ndef aplicar_descuento(precio, porcentaje):\n    return precio - (precio * porcentaje / 100)\n\nprint(aplicar_descuento(1000, 20))   # 20% off de 1000',
+        quiz:{q:"¿Qué hace return dentro de una función?",opts:["Muestra el resultado en pantalla, nada más","Devuelve un valor para poder usarlo después","Detiene todo el programa","Repite la función"],answer:1,okMsg:"¡Exacto! return le pasa un resultado a quien llamó a la función.",noMsg:"return no imprime: devuelve el valor para usarlo después, por ejemplo guardándolo en una variable."}
       },
       {
         id:"operadores", title:"Operadores aritméticos", sub:"Python también es una calculadora",
@@ -424,6 +438,9 @@ const QUIZ_BANK = [
   {trim:1,q:"¿Qué tipo de dato es True?",opts:["str","int","bool","float"],answer:2,explain:"True y False son del tipo bool."},
   {trim:1,q:"¿Qué imprime este código?",code:'print(type(3.0))',opts:["<class 'int'>","<class 'float'>","<class 'str'>","<class 'bool'>"],answer:1,explain:"Cualquier número con punto decimal es float, aunque termine en .0."},
   {trim:1,q:'¿Qué devuelve "3" + "4" en Python?',opts:["7","'34'","Error","34"],answer:1,explain:"Son strings: el + concatena texto, no suma números."},
+  {trim:1,q:"¿Qué palabra clave se usa para definir una función?",opts:["function","def","func","define"],answer:1,explain:"En Python las funciones se definen con def."},
+  {trim:1,q:"¿Qué imprime este código?",code:'def sumar(a, b):\n    return a + b\n\nprint(sumar(2, 3))',opts:["2 3","5","None","Error"],answer:1,explain:"sumar(2,3) devuelve 5 con return, y print muestra ese resultado."},
+  {trim:1,q:"¿Qué diferencia hay entre print() y return dentro de una función?",opts:["Son lo mismo","print() muestra algo en pantalla; return devuelve un valor para usar después","return solo funciona con números","print() detiene la función"],answer:1,explain:"print() solo muestra en pantalla. return le pasa el valor a quien llamó la función, para guardarlo o seguir operando."},
   {trim:1,q:"¿Cuánto da 17 // 4?",opts:["4.25","4","5","1"],answer:1,explain:"// es división entera: se queda solo con la parte entera, 4."},
   {trim:1,q:"¿Cuánto da 17 % 4?",opts:["4","1","0","17"],answer:1,explain:"% da el resto de la división: 17 = 4·4 + 1."},
   {trim:1,q:"¿Cuánto da 3 ** 3?",opts:["9","6","27","33"],answer:2,explain:"** es potencia: 3×3×3 = 27."},
@@ -486,6 +503,7 @@ function showTrim(t){
   document.body.dataset.trim=t;
   // tab states
   quizNavBtn.classList.remove('on');
+  consoleNavBtn.classList.remove('on');
   trimrow.querySelectorAll('.trimtab').forEach(b=>b.classList.toggle('on', +b.dataset.t===t));
   // build subnav + sections
   const tr=TRIMESTRES.find(x=>x.t===t);
@@ -673,6 +691,7 @@ quizNavBtn.addEventListener('click',showQuizSetup);
 function showQuizSetup(){
   trimrow.querySelectorAll('.trimtab').forEach(b=>b.classList.remove('on'));
   nav.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+  consoleNavBtn.classList.remove('on');
   quizNavBtn.classList.add('on');
   nav.innerHTML='';
 
@@ -831,6 +850,53 @@ function launchConfetti(){
   }
   document.body.appendChild(box);
   setTimeout(()=>box.remove(),3800);
+}
+
+/* ============================================================
+   CONSOLA LIBRE
+   ============================================================ */
+const consoleNavBtn=document.getElementById('consoleNavBtn');
+const CONSOLE_CODE_KEY='freeConsoleCode';
+const CONSOLE_STARTER='# Escribí lo que quieras y probalo\nprint("¡Hola, Python!")';
+
+consoleNavBtn.addEventListener('click',showConsole);
+
+function showConsole(){
+  trimrow.querySelectorAll('.trimtab').forEach(b=>b.classList.remove('on'));
+  nav.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+  quizNavBtn.classList.remove('on');
+  consoleNavBtn.classList.add('on');
+  nav.innerHTML='';
+
+  let saved=null;
+  try{saved=localStorage.getItem(CONSOLE_CODE_KEY);}catch(e){}
+  const startCode=saved!==null?saved:CONSOLE_STARTER;
+
+  main.innerHTML=`
+    <div class="unit-band"><div class="eyebrow">Consola libre</div><h2 class="u">Probá lo que quieras 🐍</h2><div class="uline"></div></div>
+    <p class="lead">Una consola de Python vacía para jugar, probar ideas o hacer la tarea. Lo que escribas se guarda solo, en este navegador.</p>
+    <div class="play">
+      <div class="play-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="file">consola.py</span></div>
+      <textarea class="editor" spellcheck="false">${escapeHtml(startCode)}</textarea>
+      <div class="play-actions"><button class="run">▶ Ejecutar</button><button class="reset">🗑 borrar todo</button></div>
+      <div class="out"><span class="muted">El resultado aparece acá cuando ejecutés ↑</span></div>
+    </div>`;
+
+  const editor=main.querySelector('.editor');
+  editor.addEventListener('input',()=>{
+    try{localStorage.setItem(CONSOLE_CODE_KEY, editor.value);}catch(e){}
+  });
+  main.querySelector('.reset').addEventListener('click',()=>{
+    if(confirm('¿Borrar todo el código de la consola?')){
+      editor.value=CONSOLE_STARTER;
+      try{localStorage.setItem(CONSOLE_CODE_KEY, CONSOLE_STARTER);}catch(e){}
+      main.querySelector('.out').innerHTML='<span class="muted">Todo limpio. Escribí y ejecutá.</span>';
+    }
+  });
+
+  wirePlay();
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(window.innerWidth<=860) setSidebar(false);
 }
 
 /* ============================================================
