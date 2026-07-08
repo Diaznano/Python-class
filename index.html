@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python paso a paso · Programación I</title>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+<style>
+  :root{
+    --ink:#1a1d29;--paper:#fdfcf9;--line:#e6e2d6;
+    --grape:#5b4b8a;--grape-soft:#efeaf7;
+    --lime:#7aa83f;--lime-soft:#eef3e2;
+    --coral:#e07a5f;--amber:#e8a838;--mut:#7d7a70;
+    --code-bg:#20223a;--code-ink:#e8e6f5;
+    --t1:#5b4b8a;--t2:#c9772e;--t3:#3a8891;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  code,pre,.mono{font-family:'JetBrains Mono','Consolas','SF Mono',monospace}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px}
+
+  header.hero{text-align:center;padding:52px 20px 36px;border-bottom:2px solid var(--line)}
+  .hero .kick{font-size:.78rem;letter-spacing:.28em;text-transform:uppercase;color:var(--grape);font-weight:700;margin-bottom:14px}
+  .hero h1{font-size:clamp(2rem,6vw,3.2rem);line-height:1.05;font-weight:800;letter-spacing:-.02em}
+  .hero h1 .snake{color:var(--lime)}
+  .hero p{color:var(--mut);margin-top:14px;font-size:1.05rem}
+
+  /* ---- Sidebar ---- */
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:280px;background:#fff;border-right:1px solid var(--line);overflow-y:auto;z-index:80;transform:translateX(0);transition:transform .22s ease}
+  body.sidebar-collapsed .sidebar{transform:translateX(-280px)}
+  .sidebar-head{position:relative;padding:18px 40px 14px 18px;border-bottom:1px solid var(--line)}
+  .sidebar-head .st{font-weight:800;font-size:.96rem;letter-spacing:-.01em}
+  .sidebar-close{position:absolute;top:12px;right:10px;font:inherit;background:none;border:none;cursor:pointer;font-size:1.05rem;color:var(--mut);padding:6px;border-radius:8px}
+  .sidebar-close:hover{color:var(--ink);background:var(--paper)}
+
+  /* ---- Quiz nav button (sidebar) ---- */
+  .quizbtn{display:flex;align-items:center;gap:10px;width:calc(100% - 28px);margin:14px 14px 0;font:inherit;font-weight:800;font-size:.88rem;cursor:pointer;border:none;border-radius:14px;padding:13px 15px;color:#fff;background:linear-gradient(135deg,var(--grape),var(--coral));box-shadow:0 4px 14px rgba(91,75,138,.28);transition:.16s}
+  .quizbtn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(91,75,138,.36)}
+  .quizbtn .ic{font-size:1.1rem}
+  .quizbtn.on{outline:2px solid var(--ink);outline-offset:2px}
+
+  .trimtabs .row{display:flex;flex-direction:column;gap:8px;padding:14px}
+  .trimtab{font:inherit;cursor:pointer;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:12px 14px;transition:.16s}
+  .trimtab .tt{font-weight:800;font-size:.86rem;display:flex;align-items:center;gap:8px}
+  .trimtab .tt .badge{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#fff;padding:2px 8px;border-radius:999px}
+  .trimtab .us{font-size:.76rem;color:var(--mut);margin-top:3px}
+  .trimtab:hover{border-color:currentColor}
+  .trimtab.on{border-color:currentColor;background:var(--grape-soft)}
+  .trimtab[data-t="1"]{color:var(--t1)} .trimtab[data-t="2"]{color:var(--t2)} .trimtab[data-t="3"]{color:var(--t3)}
+  .trimtab[data-t="1"] .badge{background:var(--t1)} .trimtab[data-t="2"] .badge{background:var(--t2)} .trimtab[data-t="3"] .badge{background:var(--t3)}
+
+  /* ---- Topic subnav ---- */
+  nav.steps{border-top:1px solid var(--line)}
+  nav.steps ul{list-style:none;display:flex;flex-direction:column;gap:3px;padding:12px 14px 24px}
+  nav.steps button{width:100%;font:inherit;font-size:.83rem;font-weight:600;border:1px solid transparent;background:none;color:var(--mut);padding:8px 12px;border-radius:10px;cursor:pointer;text-align:left;white-space:normal;transition:.16s}
+  nav.steps button .n{font-weight:800;margin-right:8px}
+  nav.steps button:hover{color:var(--ink);background:var(--paper)}
+  nav.steps button.on{color:#fff}
+
+  /* ---- Sidebar toggle & backdrop ---- */
+  #sidebarOpenBtn{position:fixed;top:16px;left:16px;z-index:90;background:var(--ink);color:#fff;border:none;width:42px;height:42px;border-radius:11px;cursor:pointer;font-size:1.15rem;display:none;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.2);transition:.16s}
+  #sidebarOpenBtn:hover{background:#000}
+  body.sidebar-collapsed #sidebarOpenBtn{display:grid}
+  #sidebarBackdrop{display:none;position:fixed;inset:0;background:rgba(20,18,30,.4);z-index:75}
+
+  .page{transition:margin-left .22s ease;margin-left:280px}
+  body.sidebar-collapsed .page{margin-left:0}
+
+  @media (max-width:860px){
+    .page{margin-left:0!important}
+    body:not(.sidebar-collapsed) #sidebarBackdrop{display:block}
+  }
+  @media (max-width:340px){.sidebar{width:86vw}}
+
+  /* trimestre color theming applied on body[data-trim] */
+  body[data-trim="1"]{--accent:var(--t1)} body[data-trim="2"]{--accent:var(--t2)} body[data-trim="3"]{--accent:var(--t3)}
+  nav.steps button.on{background:var(--accent);border-color:var(--accent)}
+  nav.steps button.on .n{color:#fff}
+  nav.steps button .n{color:var(--accent)}
+
+  /* ---- Unit divider ---- */
+  .unit-band{padding:30px 0 8px}
+  .unit-band .eyebrow{font-size:.74rem;letter-spacing:.24em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+  .unit-band h2.u{font-size:1.5rem;font-weight:800;letter-spacing:-.01em;margin-top:4px}
+  .unit-band .uline{height:3px;width:60px;background:var(--accent);border-radius:2px;margin-top:12px}
+
+  /* ---- Module ---- */
+  section.mod{padding:38px 0;border-bottom:1px solid var(--line)}
+  .mod-head{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+  .mod-num{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:1rem;color:#fff;background:var(--accent);border-radius:10px;min-width:40px;height:40px;display:grid;place-items:center;flex-shrink:0}
+  .mod h3{font-size:1.55rem;font-weight:800;letter-spacing:-.01em}
+  .mod .sub{color:var(--mut);margin:2px 0 20px 54px}
+  .lead{font-size:1.05rem;margin-bottom:18px}
+  .lead strong{color:var(--accent)}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
+  .card{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fff;transition:.16s}
+  .card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(0,0,0,.08)}
+  .card .tag{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--coral);font-size:.95rem}
+  .card .desc{font-size:.9rem;color:var(--mut);margin-top:6px}
+  .card .ex{font-family:'JetBrains Mono',monospace;font-size:.83rem;margin-top:10px;color:var(--ink);background:var(--grape-soft);padding:6px 9px;border-radius:8px;display:inline-block}
+
+  .note{background:var(--lime-soft);border-left:4px solid var(--lime);padding:14px 18px;border-radius:0 12px 12px 0;margin:20px 0;font-size:.95rem}
+  .note b{color:#4f7222}
+  .note.warn{background:#fdf3e3;border-color:var(--amber)}
+  .note.warn b{color:#b57611}
+  .note code{background:rgba(0,0,0,.06);padding:1px 5px;border-radius:4px}
+
+  .play{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:22px 0;box-shadow:0 4px 18px rgba(26,29,41,.06)}
+  .play-bar{background:#2b2d47;color:#c9c6e0;padding:10px 14px;display:flex;align-items:center;gap:8px;font-size:.82rem}
+  .dot{width:11px;height:11px;border-radius:50%}
+  .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+  .play-bar .file{margin-left:8px;font-family:'JetBrains Mono',monospace;color:#8f8caf}
+  textarea.editor{width:100%;border:none;resize:vertical;background:var(--code-bg);color:var(--code-ink);font-family:'JetBrains Mono',monospace;font-size:.94rem;line-height:1.65;padding:16px 18px;min-height:130px;outline:none;tab-size:4}
+  .play-actions{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#181a2e;border-top:1px solid #2f3252}
+  .run{font:inherit;font-weight:700;font-size:.9rem;cursor:pointer;background:var(--lime);color:#1a2b06;border:none;padding:9px 20px;border-radius:9px;transition:.16s;display:inline-flex;align-items:center;gap:7px}
+  .run:hover{background:#8bbd48;transform:translateY(-1px)}
+  .run:disabled{opacity:.5;cursor:wait;transform:none}
+  .reset{font:inherit;font-size:.82rem;color:#8f8caf;background:none;border:none;cursor:pointer}
+  .reset:hover{color:#c9c6e0;text-decoration:underline}
+  .out{background:#101223;color:#d7f0c0;font-family:'JetBrains Mono',monospace;font-size:.92rem;padding:14px 18px;white-space:pre-wrap;word-break:break-word;min-height:20px;border-top:1px solid #2f3252}
+  .out .err{color:#ff8a75}.out .muted{color:#5a5d78}
+  .out .lbl{color:#6f7296;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;display:block;margin-bottom:6px}
+
+  .quiz{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:22px 0}
+  .quiz .q{font-weight:700;margin-bottom:14px}
+  .opts{display:grid;gap:9px}
+  .opt{text-align:left;font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--paper);padding:11px 15px;border-radius:10px;transition:.14s}
+  .opt:hover{border-color:var(--accent)}
+  .opt.right{background:var(--lime-soft);border-color:var(--lime);font-weight:600}
+  .opt.wrong{background:#fbe9e4;border-color:var(--coral)}
+  .quiz .fb{margin-top:12px;font-size:.92rem;font-weight:600;min-height:1.2em}
+  .quiz .fb.ok{color:#4f7222}.quiz .fb.no{color:var(--coral)}
+
+  /* ---- Quiz: modo práctica ---- */
+  .qz-setup{padding:10px 0 40px}
+  .qz-setup p.sub{color:var(--mut);font-size:1rem}
+  .qz-block{margin-top:28px}
+  .qz-label{font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--mut);margin-bottom:12px}
+  .qz-chips{display:flex;flex-wrap:wrap;gap:10px}
+  .qz-chip{font:inherit;font-weight:700;font-size:.9rem;cursor:pointer;border:1.5px solid var(--line);background:#fff;padding:11px 18px;border-radius:999px;transition:.14s;color:var(--ink)}
+  .qz-chip .cnt{font-weight:400;color:var(--mut);font-size:.82rem}
+  .qz-chip:hover{border-color:var(--grape)}
+  .qz-chip.on{border-color:var(--grape);background:var(--grape);color:#fff}
+  .qz-chip.on .cnt{color:rgba(255,255,255,.8)}
+  .qz-chip[data-trim="1"].on{background:var(--t1);border-color:var(--t1)}
+  .qz-chip[data-trim="2"].on{background:var(--t2);border-color:var(--t2)}
+  .qz-chip[data-trim="3"].on{background:var(--t3);border-color:var(--t3)}
+  .qz-start{margin-top:32px;font:inherit;font-weight:800;font-size:1.02rem;cursor:pointer;background:var(--grape);color:#fff;border:none;padding:15px 30px;border-radius:14px;display:inline-flex;align-items:center;gap:10px;transition:.16s}
+  .qz-start:hover{background:#493b70;transform:translateY(-1px)}
+
+  .qz-history{margin-top:40px;padding-top:28px;border-top:1px solid var(--line)}
+  .qz-history-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+  .qz-history table{width:100%;border-collapse:collapse;font-size:.86rem}
+  .qz-history th{text-align:left;color:var(--mut);font-weight:700;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+  .qz-history td{padding:11px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+  .qz-history tr:last-child td{border-bottom:none}
+  .qz-history .pct{font-weight:700}
+  .qz-history .pct.good{color:#4f7222}
+  .qz-history .pct.mid{color:#b57611}
+  .qz-history .pct.low{color:var(--coral)}
+  .qz-history-wrap{overflow-x:auto}
+  .qz-clear{font:inherit;font-size:.82rem;color:var(--mut);background:none;border:none;cursor:pointer;text-decoration:underline}
+  .qz-clear:hover{color:var(--coral)}
+  .qz-empty{color:var(--mut);font-size:.92rem}
+
+  .qz-play{padding:10px 0 60px}
+  .qz-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+  .qz-count{font-weight:700;font-size:.88rem;color:var(--mut)}
+  .qz-stats{display:flex;align-items:center;gap:16px;font-weight:700;font-size:.9rem}
+  .qz-streak{color:var(--amber)}
+  .qz-score{color:var(--accent)}
+  .qz-bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-bottom:26px}
+  .qz-bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s ease}
+
+  .qz-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:0 6px 22px rgba(26,29,41,.06)}
+  .qz-topic{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--accent);margin-bottom:10px}
+  .qz-code{background:var(--code-bg);color:var(--code-ink);font-family:'JetBrains Mono',monospace;font-size:.88rem;line-height:1.6;padding:14px 16px;border-radius:12px;white-space:pre-wrap;margin-bottom:16px;overflow-x:auto}
+  .qz-q{font-size:1.12rem;font-weight:700;margin-bottom:18px}
+  .qz-opts{display:grid;gap:10px}
+  .qz-opt{text-align:left;font:inherit;font-family:'JetBrains Mono',monospace;font-size:.92rem;cursor:pointer;border:1.5px solid var(--line);background:var(--paper);padding:13px 16px;border-radius:12px;transition:.14s}
+  .qz-opt:hover:not(:disabled){border-color:var(--accent);transform:translateX(2px)}
+  .qz-opt:disabled{cursor:default}
+  .qz-opt.right{background:var(--lime-soft);border-color:var(--lime);font-weight:700;animation:qzpop .3s ease}
+  .qz-opt.wrong{background:#fbe9e4;border-color:var(--coral);animation:qzshake .35s ease}
+  @keyframes qzpop{0%{transform:scale(1)}40%{transform:scale(1.03)}100%{transform:scale(1)}}
+  @keyframes qzshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .qz-explain{margin-top:18px;padding:14px 16px;border-radius:12px;font-size:.92rem;background:var(--grape-soft);display:none}
+  .qz-explain.show{display:block}
+  .qz-next{margin-top:20px;font:inherit;font-weight:800;font-size:.95rem;cursor:pointer;background:var(--ink);color:#fff;border:none;padding:12px 26px;border-radius:12px;display:none;align-items:center;gap:8px}
+  .qz-next.show{display:inline-flex}
+  .qz-next:hover{background:#000}
+
+  .qz-result{text-align:center;padding:30px 10px 60px}
+  .qz-result .emoji{font-size:3.4rem;line-height:1}
+  .qz-result h2{font-size:1.8rem;font-weight:800;margin-top:12px}
+  .qz-result .score{font-size:1.05rem;color:var(--mut);margin-top:10px}
+  .qz-result .streakline{margin-top:6px;font-size:.92rem;color:var(--mut)}
+  .qz-result-actions{display:flex;gap:12px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+  .qz-result-actions button{font:inherit;font-weight:700;font-size:.92rem;cursor:pointer;border-radius:12px;padding:12px 22px}
+  .qz-again{background:var(--grape);color:#fff;border:none}
+  .qz-again:hover{background:#493b70}
+  .qz-change{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .qz-change:hover{border-color:var(--ink)}
+
+  .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:95}
+  .confetti span{position:absolute;top:-20px;width:9px;height:14px;opacity:.9;animation:qzfall linear forwards}
+  @keyframes qzfall{to{transform:translateY(110vh) rotate(540deg);opacity:0}}
+
+  #boot{position:fixed;bottom:16px;right:16px;z-index:60;background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:.85rem;display:flex;align-items:center;gap:9px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+  #boot.done{background:var(--lime);color:#1a2b06}
+  .spin{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  footer{text-align:center;padding:40px 20px 60px;color:var(--mut);font-size:.88rem}
+  @media (max-width:560px){.mod .sub{margin-left:0}.cards{grid-template-columns:1fr 1fr}}
+  @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+</head>
+<body data-trim="1">
+
+<button id="sidebarOpenBtn" aria-label="Mostrar menú" title="Mostrar menú">☰</button>
+<div id="sidebarBackdrop"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head">
+    <span class="st">Python paso a paso</span>
+    <button class="sidebar-close" id="sidebarCloseBtn" aria-label="Ocultar menú" title="Ocultar menú">✕</button>
+  </div>
+  <button class="quizbtn" id="quizNavBtn"><span class="ic">🎮</span> Modo Quiz — practicá</button>
+  <div class="trimtabs"><div class="row" id="trimrow"></div></div>
+  <nav class="steps"><ul id="nav"></ul></nav>
+</aside>
+
+<div class="page" id="page">
+  <header class="hero">
+    <div class="wrap">
+      <div class="kick">Programación I · 3er año</div>
+      <h1>Aprendé <span class="snake">Python</span><br>escribiendo, no mirando</h1>
+      <p>Toda la materia en un lugar. Elegí el trimestre, elegí el tema, y practicá en la consola real.</p>
+    </div>
+  </header>
+
+  <main class="wrap" id="main"></main>
+
+  <footer>Programación I · Python corre en tu navegador, no hace falta instalar nada · Atajo: Ctrl/Cmd + Enter para ejecutar</footer>
+</div>
+
+<div id="boot"><span class="spin"></span><span id="boot-txt">Encendiendo Python…</span></div>
+
+<script>
+/* ============================================================
+   CONTENIDO COMPLETO — 3 trimestres / unidades
+   ============================================================ */
+const TRIMESTRES = [
+  {
+    t:1, unidad:"Unidad 1", tema:"Fundamentos de Python",
+    desc:"print · variables · tipos · operadores · lógica",
+    modules:[
+      {
+        id:"print", title:"print() y comentarios", sub:"Cómo Python te habla, y cómo dejás notas",
+        lead:"La función <strong>print()</strong> muestra cosas en pantalla. Todo lo que empieza con <strong>#</strong> es un comentario: Python lo ignora, sirve para explicarte a vos misma qué hace el código.",
+        cards:[{tag:"print()",desc:"Muestra texto o números",ex:'print("Hola")'},{tag:"#",desc:"Comentario, no se ejecuta",ex:"# una nota"},{tag:'" "',desc:"El texto va entre comillas",ex:'"soy texto"'}],
+        note:{warn:false,txt:"Probá borrar las comillas de <code>\"Hola\"</code> y ejecutar. El error que aparece es normal: así una aprende a leer los mensajes de Python."},
+        code:'# Todo lo que está acá es un comentario\nprint("Hola, ¿cómo estás?")\nprint("Bienvenida a Python")\nprint(2025)',
+        quiz:{q:"¿Qué línea NO va a mostrar nada?",opts:['print("Chau")','# print("Chau")','print(10)'],answer:1,okMsg:"¡Exacto! El # la convierte en comentario.",noMsg:"El # al principio apaga la línea."}
+      },
+      {
+        id:"vars", title:"Variables", sub:"Cajitas con nombre donde guardás datos",
+        lead:"Una <strong>variable</strong> es un nombre que guarda un valor. Usás <strong>=</strong> para meter algo adentro, y después la llamás por su nombre. En Python no aclarás el tipo: se acomoda solo.",
+        cards:[{tag:"nombre =",desc:"Guarda un valor",ex:'edad = 15'},{tag:"reasignar",desc:"Podés cambiar lo guardado",ex:"edad = 16"},{tag:"usar",desc:"La llamás por su nombre",ex:"print(edad)"}],
+        note:{warn:false,txt:"El <code>=</code> no es \"igual\" de matemática: significa <b>\"guardá esto acá\"</b>. Se lee de derecha a izquierda."},
+        code:'nombre = "Sofi"\nedad = 15\nprint(nombre)\nprint(edad)\n\n# le sumamos un año\nedad = edad + 1\nprint("El año que viene tenés", edad)',
+        quiz:{q:"Después de x = 5 y luego x = 10, ¿qué muestra print(x)?",opts:["5","10","5 y 10"],answer:1,okMsg:"¡Sí! El último valor pisa al anterior.",noMsg:"La segunda línea reemplaza: queda 10."}
+      },
+      {
+        id:"tipos", title:"Tipos de datos", sub:"No es lo mismo un número que un texto",
+        lead:"Cada dato tiene un <strong>tipo</strong>. Los cuatro más usados: <strong>int</strong> (enteros), <strong>float</strong> (con coma), <strong>str</strong> (texto) y <strong>bool</strong> (True/False). <strong>type()</strong> te dice qué es cada cosa.",
+        cards:[{tag:"int",desc:"Número entero",ex:"7"},{tag:"float",desc:"Número con coma",ex:"3.5"},{tag:"str",desc:"Texto con comillas",ex:'"hola"'},{tag:"bool",desc:"True o False",ex:"True"}],
+        note:{warn:true,txt:'<code>"7"</code> con comillas es texto, no número. <code>"7" + "7"</code> da <code>"77"</code>, pero <code>7 + 7</code> da <code>14</code>. Probalo abajo.'},
+        code:'print(type(7))\nprint(type(3.5))\nprint(type("hola"))\nprint(type(True))\n\n# la trampa clásica:\nprint(7 + 7)\nprint("7" + "7")',
+        quiz:{q:"¿De qué tipo es precio = 199.99 ?",opts:["int","float","str"],answer:1,okMsg:"¡Correcto! Tiene decimales → float.",noMsg:"Tiene coma decimal → es float."}
+      },
+      {
+        id:"operadores", title:"Operadores aritméticos", sub:"Python también es una calculadora",
+        lead:"Con estos símbolos hacés cuentas. Prestá atención a <strong>//</strong> (división entera), <strong>%</strong> (resto) y <strong>**</strong> (potencia), que son los que más confunden.",
+        cards:[{tag:"+ - * /",desc:"Suma, resta, por, dividido",ex:"10 / 3"},{tag:"//",desc:"División entera",ex:"10 // 3 → 3"},{tag:"%",desc:"Resto de la división",ex:"10 % 3 → 1"},{tag:"**",desc:"Potencia",ex:"2 ** 4 → 16"}],
+        note:{warn:false,txt:"El <b>%</b> es más útil de lo que parece: <code>n % 2</code> da 0 si el número es par. Es la forma clásica de saber par/impar."},
+        code:'print(10 / 3)    # división normal\nprint(10 // 3)   # división entera\nprint(10 % 3)    # resto\nprint(2 ** 4)    # 2 a la 4\n\n# ¿8 es par?\nprint(8 % 2)     # si da 0, es par',
+        quiz:{q:"¿Cuánto da 7 % 2 ?",opts:["3","1","3.5"],answer:1,okMsg:"¡Bien! 7 = 3·2 + 1, sobra 1.",noMsg:"% da el RESTO: sobra 1."}
+      },
+      {
+        id:"logicos", title:"Comparación y lógica", sub:"Preguntas que se responden con True o False",
+        lead:"Los operadores de <strong>comparación</strong> (<code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>) devuelven <strong>True</strong> o <strong>False</strong>. Con <strong>and</strong>, <strong>or</strong> y <strong>not</strong> combinás preguntas. Es la base de las condiciones.",
+        cards:[{tag:"==",desc:"¿Son iguales?",ex:"5 == 5 → True"},{tag:"!=",desc:"¿Son distintos?",ex:"5 != 3 → True"},{tag:"and",desc:"Las dos deben cumplirse",ex:"True and False"},{tag:"or",desc:"Alcanza con una",ex:"True or False"}],
+        note:{warn:true,txt:"Cuidado con <code>=</code> vs <code>==</code>. Uno <b>guarda</b> un valor; dos <b>comparan</b>. Es el error número uno de quien empieza."},
+        code:'edad = 16\nprint(edad >= 18)          # ¿es mayor de edad?\nprint(edad == 16)          # ¿tiene 16?\n\ntiene_entrada = True\nprint(edad >= 18 and tiene_entrada)  # ¿puede entrar?',
+        quiz:{q:"¿Qué devuelve (10 > 5) and (3 > 8) ?",opts:["True","False","Error"],answer:1,okMsg:"¡Perfecto! Con and las DOS deben ser True.",noMsg:"Con and, si una es False, todo es False."}
+      }
+    ]
+  },
+  {
+    t:2, unidad:"Unidad 2", tema:"Control de flujo y listas",
+    desc:"if/elif/else · scope · assert · bucles · listas",
+    modules:[
+      {
+        id:"condicionales", title:"Condicionales (if / elif / else)", sub:"Que el programa decida según la situación",
+        lead:"Con <strong>if</strong> el programa hace algo solo si una condición es verdadera. <strong>elif</strong> agrega otra pregunta, y <strong>else</strong> es lo que pasa si nada se cumplió. Fijate en los <strong>dos puntos</strong> y la <strong>sangría</strong> (los 4 espacios): en Python son obligatorios.",
+        cards:[{tag:"if",desc:"Si se cumple, hacé esto",ex:"if nota >= 6:"},{tag:"elif",desc:"Si no, probá esta otra",ex:"elif nota >= 4:"},{tag:"else",desc:"Si nada se cumplió",ex:"else:"},{tag:"  sangría",desc:"4 espacios adentro del if",ex:"    print(...)"}],
+        note:{warn:true,txt:"La <b>sangría</b> no es decorativa: le dice a Python qué está \"adentro\" del if. Si la sacás, da error. Probá borrar los espacios de una línea y ejecutá."},
+        code:'nota = 7\n\nif nota >= 6:\n    print("Aprobaste 🎉")\nelif nota >= 4:\n    print("Recuperás")\nelse:\n    print("A estudiar más")\n\n# cambiá el valor de nota y volvé a ejecutar',
+        quiz:{q:"Si nota = 5, ¿qué imprime el código de arriba?",opts:['"Aprobaste 🎉"','"Recuperás"','"A estudiar más"'],answer:1,okMsg:"¡Sí! 5 no llega a 6, pero sí a 4 → entra en elif.",noMsg:"5 no llega a 6 pero sí a 4: entra en el elif."}
+      },
+      {
+        id:"scope", title:"Variables locales y globales", sub:"Dónde vive cada variable",
+        lead:"Una variable creada <strong>dentro de una función</strong> es <strong>local</strong>: solo existe ahí. Una creada <strong>afuera</strong> es <strong>global</strong> y se ve desde todos lados. Por eso a veces una variable \"no existe\" cuando la buscás en otro lugar.",
+        cards:[{tag:"global",desc:"Definida afuera, se ve en todos lados",ex:"pais = 'AR'"},{tag:"local",desc:"Nace y muere dentro de la función",ex:"def f(): x = 1"},{tag:"alcance",desc:"Dónde es visible cada una",ex:"# scope"}],
+        note:{warn:false,txt:"Regla mental: lo que nace adentro de una función, se queda adentro. Si querés usarlo afuera, tenés que <code>return</code>-arlo."},
+        code:'mensaje = "soy global"   # afuera de toda función\n\ndef saludar():\n    apodo = "soy local"   # solo existe acá dentro\n    print(mensaje)        # puede ver la global\n    print(apodo)\n\nsaludar()\nprint(mensaje)            # esto anda\n# print(apodo)  # <- si la destapás, da error: no existe afuera',
+        quiz:{q:"¿Dónde se puede usar una variable local?",opts:["En todo el programa","Solo dentro de su función","Solo en los if"],answer:1,okMsg:"¡Exacto! Solo vive dentro de su función.",noMsg:"Local = solo dentro de la función donde nació."}
+      },
+      {
+        id:"assert", title:"assert", sub:"Un chequeo que avisa si algo no cumple",
+        lead:"<strong>assert</strong> comprueba que una condición sea verdadera. Si lo es, el programa sigue como si nada. Si es falsa, corta y avisa. Sirve para <strong>verificar suposiciones</strong> mientras programás.",
+        cards:[{tag:"assert",desc:"Verificá que esto sea True",ex:"assert edad > 0"},{tag:"con mensaje",desc:"Explica qué falló",ex:'assert x > 0, "x negativo"'},{tag:"pasa",desc:"Si es True, sigue sin decir nada",ex:"# nada visible"}],
+        note:{warn:false,txt:"Si el <code>assert</code> pasa, no vas a ver nada: es buena señal. Solo habla cuando algo está mal. Probá cambiar la edad a un número negativo."},
+        code:'edad = 20\nassert edad > 0, "La edad no puede ser negativa"\nprint("Todo ok, edad válida:", edad)\n\n# probá poner edad = -5 y ejecutá:\n# verás cómo assert corta el programa',
+        quiz:{q:"assert 2 + 2 == 5 ¿qué hace?",opts:["Sigue normal","Corta y da error","Imprime 5"],answer:1,okMsg:"¡Sí! La condición es falsa → assert corta.",noMsg:"2+2 no es 5: la condición es falsa, corta."}
+      },
+      {
+        id:"bucles", title:"Bucles (for / while)", sub:"Repetir sin escribir mil veces lo mismo",
+        lead:"<strong>for</strong> repite una cantidad conocida de veces (o recorre una lista). <strong>while</strong> repite <strong>mientras</strong> una condición sea verdadera. <strong>break</strong> corta el bucle y <strong>continue</strong> saltea una vuelta.",
+        cards:[{tag:"for",desc:"Repite N veces / recorre",ex:"for i in range(5):"},{tag:"while",desc:"Repite mientras se cumpla",ex:"while x < 10:"},{tag:"break",desc:"Corta el bucle ya",ex:"break"},{tag:"continue",desc:"Saltea a la próxima vuelta",ex:"continue"}],
+        note:{warn:true,txt:"Con <b>while</b>, asegurate de que la condición en algún momento se vuelva falsa, o el bucle no termina nunca (bucle infinito). Acá <code>contador</code> sube solo, por eso frena."},
+        code:'# for: contar del 1 al 5\nfor i in range(1, 6):\n    print("Vuelta", i)\n\nprint("---")\n\n# while: mientras sea menor a 3\ncontador = 0\nwhile contador < 3:\n    print("contador vale", contador)\n    contador = contador + 1',
+        quiz:{q:"for i in range(3) recorre los valores…",opts:["1, 2, 3","0, 1, 2","0, 1, 2, 3"],answer:1,okMsg:"¡Bien! range(3) arranca en 0 y no llega al 3.",noMsg:"range(3) da 0, 1, 2: empieza en 0, no incluye el 3."}
+      },
+      {
+        id:"listas", title:"Listas: métodos", sub:"Guardar muchos valores en una sola variable",
+        lead:"Una <strong>lista</strong> guarda varios elementos en orden, entre corchetes <code>[ ]</code>. <strong>append</strong> agrega al final, <strong>remove</strong> saca un valor, <strong>index</strong> dice en qué posición está algo y <strong>len</strong> cuenta cuántos hay.",
+        cards:[{tag:"[ ]",desc:"Crea la lista",ex:'["a","b","c"]'},{tag:"append()",desc:"Agrega al final",ex:'frutas.append("pera")'},{tag:"remove()",desc:"Saca un elemento",ex:'frutas.remove("uva")'},{tag:"len()",desc:"Cuántos elementos hay",ex:"len(frutas)"}],
+        note:{warn:false,txt:"Las posiciones empiezan en <b>0</b>: el primer elemento es <code>frutas[0]</code>, no <code>frutas[1]</code>. Es lo que más cuesta al principio."},
+        code:'frutas = ["manzana", "banana", "uva"]\nprint(frutas)\nprint("Hay", len(frutas), "frutas")\n\nfrutas.append("pera")   # agregar\nfrutas.remove("uva")    # sacar\nprint(frutas)\nprint("banana está en la posición", frutas.index("banana"))',
+        quiz:{q:'En ["a","b","c"], ¿qué devuelve lista[0]?',opts:['"a"','"b"','1'],answer:0,okMsg:"¡Exacto! Se cuenta desde 0, así que [0] es el primero.",noMsg:"Las listas empiezan en 0: [0] es el primer elemento, 'a'."}
+      },
+      {
+        id:"listas2", title:"Ordenar y manipular listas", sub:"sort, sorted, reverse, pop, extend",
+        lead:"<strong>sort()</strong> ordena la lista en el lugar; <strong>sorted()</strong> devuelve una copia ordenada sin tocar la original. <strong>reverse=True</strong> ordena al revés, <strong>pop()</strong> saca por posición y <strong>extend()</strong> pega otra lista al final.",
+        cards:[{tag:"sort()",desc:"Ordena la lista original",ex:"nums.sort()"},{tag:"sorted()",desc:"Copia ordenada, no toca la original",ex:"sorted(nums)"},{tag:"reverse=True",desc:"De mayor a menor",ex:"nums.sort(reverse=True)"},{tag:"pop()",desc:"Saca por posición",ex:"nums.pop(0)"}],
+        note:{warn:false,txt:"Diferencia clave: <code>sort()</code> <b>modifica</b> la lista y no devuelve nada; <code>sorted()</code> <b>devuelve</b> una nueva y deja la original igual."},
+        code:'nums = [4, 1, 8, 3]\n\nordenada = sorted(nums)      # copia ordenada\nprint("original:", nums)\nprint("copia ordenada:", ordenada)\n\nnums.sort(reverse=True)      # ordena la original al revés\nprint("original ahora:", nums)\n\nnums.pop(0)                  # saca el de la posición 0\nprint("sin el primero:", nums)',
+        quiz:{q:"¿Cuál deja la lista original SIN modificar?",opts:["sort()","sorted()","pop()"],answer:1,okMsg:"¡Sí! sorted() devuelve una copia y respeta la original.",noMsg:"sorted() no toca la original; sort() y pop() sí la cambian."}
+      }
+    ]
+  },
+  {
+    t:3, unidad:"Unidad 3", tema:"Estructuras, módulos y errores",
+    desc:"diccionarios · conjuntos · comprensión · módulos · try/except",
+    modules:[
+      {
+        id:"dicc", title:"Diccionarios", sub:"Datos con etiqueta: clave y valor",
+        lead:"Un <strong>diccionario</strong> guarda pares <strong>clave: valor</strong>, entre llaves <code>{ }</code>. En vez de buscar por posición, buscás por nombre. <strong>get()</strong> obtiene un valor, <strong>keys()</strong> lista las claves y <strong>values()</strong> los valores.",
+        cards:[{tag:"{ }",desc:"Crea el diccionario",ex:'{"nombre": "Sofi"}'},{tag:"[clave]",desc:"Accede por su etiqueta",ex:'alumna["edad"]'},{tag:"get()",desc:"Obtiene sin romper si falta",ex:'alumna.get("edad")'},{tag:"keys()",desc:"Todas las claves",ex:"alumna.keys()"}],
+        note:{warn:false,txt:"En una lista buscás por número de posición; en un diccionario buscás por <b>nombre</b>. Por eso es ideal para \"fichas\" (una persona, un producto)."},
+        code:'alumna = {"nombre": "Sofi", "edad": 15, "curso": "3ro"}\n\nprint(alumna["nombre"])\nprint(alumna.get("edad"))\nprint("Claves:", alumna.keys())\nprint("Valores:", alumna.values())\n\nalumna["nota"] = 8    # agregar un par nuevo\nprint(alumna)',
+        quiz:{q:'¿Cómo obtenés la edad de  d = {"edad": 15} ?',opts:['d[0]','d["edad"]','d.edad'],answer:1,okMsg:"¡Exacto! En diccionarios se accede por la clave.",noMsg:'Se accede por la clave entre corchetes: d["edad"].'}
+      },
+      {
+        id:"dicc2", title:"Métodos update, setdefault, items", sub:"Trabajar cómodo con diccionarios",
+        lead:"<strong>update()</strong> agrega o cambia varios pares de una; <strong>setdefault()</strong> pone un valor solo si la clave no existía; <strong>items()</strong> te da clave y valor juntos, ideal para recorrer con un for.",
+        cards:[{tag:"update()",desc:"Agrega/actualiza en bloque",ex:'d.update({"a":1})'},{tag:"setdefault()",desc:"Pone solo si no existía",ex:'d.setdefault("x",0)'},{tag:"items()",desc:"Clave y valor juntos",ex:"d.items()"}],
+        note:{warn:false,txt:"Con <code>for clave, valor in d.items():</code> recorrés todo el diccionario de una, sacando las dos cosas al mismo tiempo."},
+        code:'alumna = {"nombre": "Sofi", "edad": 15}\n\nalumna.update({"edad": 16, "curso": "3ro"})  # cambia edad y agrega curso\nprint(alumna)\n\nalumna.setdefault("nota", 0)   # como no existía, la crea\nprint(alumna)\n\n# recorrer clave y valor:\nfor clave, valor in alumna.items():\n    print(clave, "->", valor)',
+        quiz:{q:"setdefault('edad', 99) en un dict que YA tiene edad=16…",opts:["La cambia a 99","La deja en 16","Da error"],answer:1,okMsg:"¡Sí! setdefault solo pone valor si la clave no existía.",noMsg:"Si la clave ya existe, setdefault no la toca: queda 16."}
+      },
+      {
+        id:"conjuntos", title:"Conjuntos (sets)", sub:"Colecciones sin repetidos",
+        lead:"Un <strong>conjunto</strong> es como una lista pero <strong>sin elementos repetidos</strong> y sin orden. <strong>add</strong> agrega, <strong>remove</strong> saca, <strong>union</strong> junta dos conjuntos y <strong>intersection</strong> devuelve lo que tienen en común.",
+        cards:[{tag:"{ }",desc:"Crea el conjunto",ex:"{1, 2, 3}"},{tag:"add()",desc:"Agrega un elemento",ex:"s.add(4)"},{tag:"union",desc:"Junta los dos",ex:"a | b"},{tag:"intersection",desc:"Lo que comparten",ex:"a & b"}],
+        note:{warn:false,txt:"Si agregás algo que ya estaba, el conjunto lo ignora. Por eso sirve para <b>eliminar duplicados</b> de una lista al instante."},
+        code:'a = {1, 2, 3, 3, 3}   # los repetidos se descartan solos\nprint(a)\n\na.add(4)\nprint(a)\n\nb = {3, 4, 5}\nprint("Unión:", a | b)          # todo\nprint("Intersección:", a & b)   # lo común',
+        quiz:{q:"¿Qué imprime  print({1, 2, 2, 3})  ?",opts:["{1, 2, 2, 3}","{1, 2, 3}","[1, 2, 3]"],answer:1,okMsg:"¡Correcto! Los conjuntos no guardan repetidos.",noMsg:"Un conjunto descarta duplicados: queda {1, 2, 3}."}
+      },
+      {
+        id:"comprension", title:"Comprensión de listas", sub:"Crear listas en una sola línea",
+        lead:"La <strong>comprensión de listas</strong> arma una lista nueva en una línea, recorriendo otra colección. Se lee: <em>\"quiero ESTO por cada elemento EN aquello\"</em>. También sirve con condiciones y con <code>in</code> / <code>not in</code> para chequear pertenencia.",
+        cards:[{tag:"in",desc:"¿Está adentro?",ex:'"a" in lista'},{tag:"not in",desc:"¿No está?",ex:'"z" not in lista'},{tag:"[x for x in ...]",desc:"Lista en una línea",ex:"[n*2 for n in nums]"},{tag:"con if",desc:"Filtra mientras crea",ex:"[n for n in nums if n>0]"}],
+        note:{warn:false,txt:"La forma larga (un for con append) y la comprensión hacen lo mismo. La comprensión es solo más corta de escribir una vez que la entendés."},
+        code:'nums = [1, 2, 3, 4, 5]\n\n# el doble de cada número, en una línea:\ndobles = [n * 2 for n in nums]\nprint(dobles)\n\n# solo los pares:\npares = [n for n in nums if n % 2 == 0]\nprint(pares)\n\nprint(3 in nums)      # ¿está el 3?\nprint(9 not in nums)  # ¿falta el 9?',
+        quiz:{q:"[n*n for n in [1,2,3]] da como resultado…",opts:["[1, 2, 3]","[1, 4, 9]","[2, 4, 6]"],answer:1,okMsg:"¡Perfecto! Es cada número al cuadrado: 1, 4, 9.",noMsg:"n*n es el cuadrado: 1, 4, 9."}
+      },
+      {
+        id:"modulos", title:"Módulos (math, random, os)", sub:"Herramientas que ya vienen hechas",
+        lead:"Un <strong>módulo</strong> es una caja de herramientas lista para usar. Se trae con <strong>import</strong>. <strong>math</strong> trae funciones matemáticas, <strong>random</strong> genera azar, y <strong>os</strong> habla con el sistema. <code>pip</code> y <code>requirements.txt</code> sirven para instalar módulos externos.",
+        cards:[{tag:"import",desc:"Trae el módulo",ex:"import math"},{tag:"math",desc:"Raíz, pi, redondeo…",ex:"math.sqrt(9)"},{tag:"random",desc:"Números / elecciones al azar",ex:"random.randint(1,6)"},{tag:"pip",desc:"Instala módulos externos",ex:"pip install ..."}],
+        note:{warn:false,txt:"Cada vez que ejecutes vas a ver un número distinto en la parte de <code>random</code>: eso es justamente el azar funcionando."},
+        code:'import math\nimport random\n\nprint("Raíz de 16:", math.sqrt(16))\nprint("Número pi:", math.pi)\nprint("Redondeo hacia arriba de 4.2:", math.ceil(4.2))\n\n# tirar un dado:\nprint("Salió un:", random.randint(1, 6))',
+        quiz:{q:"¿Qué palabra usás para traer un módulo?",opts:["include","import","using"],answer:1,okMsg:"¡Sí! En Python se usa import.",noMsg:"En Python es import."}
+      },
+      {
+        id:"excepciones", title:"Manejo de excepciones", sub:"Que un error no rompa todo el programa",
+        lead:"Con <strong>try</strong> intentás algo que podría fallar. Si falla, en vez de cortar todo, salta al <strong>except</strong> y seguís con un plan B. <strong>finally</strong> se ejecuta siempre, pase lo que pase.",
+        cards:[{tag:"try",desc:"Intentá esto",ex:"try:"},{tag:"except",desc:"Si falla, hacé esto",ex:"except:"},{tag:"finally",desc:"Esto pasa siempre",ex:"finally:"}],
+        note:{warn:false,txt:"Sin <code>try/except</code>, dividir por cero corta el programa entero. Con él, lo atajás y seguís. Probá cambiar el divisor a 0 y mirá la diferencia."},
+        code:'divisor = 0\n\ntry:\n    resultado = 10 / divisor\n    print("El resultado es", resultado)\nexcept ZeroDivisionError:\n    print("Ups: no se puede dividir por cero")\nfinally:\n    print("Esto se ejecuta siempre")\n\n# cambiá divisor a 2 y volvé a ejecutar',
+        quiz:{q:"El bloque finally se ejecuta…",opts:["Solo si hay error","Solo si NO hay error","Siempre"],answer:2,okMsg:"¡Exacto! finally corre pase lo que pase.",noMsg:"finally se ejecuta siempre, haya error o no."}
+      }
+    ]
+  }
+];
+
+/* ============================================================
+   BANCO DE PREGUNTAS — modo quiz
+   ============================================================ */
+const QUIZ_BANK = [
+  // Trimestre 1
+  {trim:1,q:"¿Qué imprime este código?",code:'print("Hola")\n# print("Mundo")',opts:["Hola","Mundo","Hola\nMundo","Nada"],answer:0,explain:"La segunda línea es un comentario: Python la ignora por completo."},
+  {trim:1,q:"¿Cuál es la forma correcta de imprimir texto junto con un número?",opts:['print("Tengo", 5, "años")','print("Tengo" 5 "años")','print(Tengo, 5, años)','print("Tengo" + 5 + "años")'],answer:0,explain:"print() separa los argumentos con comas: no hace falta convertir nada a mano."},
+  {trim:1,q:"¿Qué hace una línea que empieza con #?",opts:["Se ejecuta como código","Python la ignora por completo","Genera un error","Imprime el texto tal cual"],answer:1,explain:"El # marca un comentario: sirve para vos, Python no lo lee."},
+  {trim:1,q:"¿Qué imprime este código?",code:'x = 3\nx = x + 2\nprint(x)',opts:["3","2","5","Error"],answer:2,explain:"x pasa a valer 3 + 2 = 5: la reasignación pisa el valor anterior."},
+  {trim:1,q:"¿Cuál es la forma correcta de crear una variable edad con valor 15?",opts:["edad == 15","edad = 15","15 = edad","var edad = 15"],answer:1,explain:"= asigna un valor. Python no usa la palabra var."},
+  {trim:1,q:"¿Qué imprime este código?",code:'a = 10\nb = a\na = 20\nprint(b)',opts:["10","20","Error","None"],answer:0,explain:"b guardó una copia del valor 10 antes de que a cambiara a 20."},
+  {trim:1,q:"¿Qué tipo de dato es True?",opts:["str","int","bool","float"],answer:2,explain:"True y False son del tipo bool."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print(type(3.0))',opts:["<class 'int'>","<class 'float'>","<class 'str'>","<class 'bool'>"],answer:1,explain:"Cualquier número con punto decimal es float, aunque termine en .0."},
+  {trim:1,q:'¿Qué devuelve "3" + "4" en Python?',opts:["7","'34'","Error","34"],answer:1,explain:"Son strings: el + concatena texto, no suma números."},
+  {trim:1,q:"¿Cuánto da 17 // 4?",opts:["4.25","4","5","1"],answer:1,explain:"// es división entera: se queda solo con la parte entera, 4."},
+  {trim:1,q:"¿Cuánto da 17 % 4?",opts:["4","1","0","17"],answer:1,explain:"% da el resto de la división: 17 = 4·4 + 1."},
+  {trim:1,q:"¿Cuánto da 3 ** 3?",opts:["9","6","27","33"],answer:2,explain:"** es potencia: 3×3×3 = 27."},
+  {trim:1,q:"¿Qué devuelve 5 == 5.0?",opts:["True","False","Error","None"],answer:0,explain:"Python compara el valor numérico: no le importa que uno sea int y el otro float."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print(not True)',opts:["True","False","None","Error"],answer:1,explain:"not invierte el valor booleano: not True es False."},
+  {trim:1,q:"¿Cuándo da True la expresión A or B?",opts:["Solo si A y B son True","Si al menos una de las dos es True","Nunca","Solo si ninguna es True"],answer:1,explain:"Con or alcanza con que una sola condición se cumpla."},
+
+  // Trimestre 2
+  {trim:2,q:"¿Qué imprime este código?",code:'n = 3\nif n > 5:\n    print("grande")\nelif n > 0:\n    print("positivo")\nelse:\n    print("negativo")',opts:["grande","positivo","negativo","Nada"],answer:1,explain:"3 no es mayor a 5, pero sí mayor a 0: entra en el elif."},
+  {trim:2,q:"¿Qué diferencia hay entre elif y else?",opts:["elif necesita su propia condición, else no","Son exactamente lo mismo","else siempre va primero","elif solo puede usarse una vez"],answer:0,explain:"else no evalúa nada, es el \"en cualquier otro caso\"."},
+  {trim:2,q:"¿Qué imprime este código?",code:'x = 0\nif x:\n    print("sí")\nelse:\n    print("no")',opts:["sí","no","Error","0"],answer:1,explain:"0 se evalúa como False en una condición."},
+  {trim:2,q:"¿Qué pasa al ejecutar esto?",code:'def f():\n    y = 1\nf()\nprint(y)',opts:["Imprime 1","Imprime 0","Da error: y no existe","Imprime None"],answer:2,explain:"y es local a f(): no existe fuera de la función."},
+  {trim:2,q:"¿Una variable global se puede leer dentro de una función?",opts:["Sí, sin problema","No, nunca","Solo si es un número","Solo dentro de un for"],answer:0,explain:"Las funciones pueden leer variables globales libremente."},
+  {trim:2,q:"¿Qué pasa al ejecutar assert 3 > 5?",opts:["No pasa nada","El programa corta con error","Imprime False","Imprime 3"],answer:1,explain:"La condición es falsa, así que assert corta el programa."},
+  {trim:2,q:"¿Para qué sirve assert?",opts:["Para imprimir texto en pantalla","Para verificar que una condición sea verdadera","Para crear una función nueva","Para repetir código varias veces"],answer:1,explain:"assert chequea una suposición: si falla, avisa cortando."},
+  {trim:2,q:"¿Qué imprime este código?",code:'for i in range(2, 5):\n    print(i)',opts:["2 3 4","2 3 4 5","1 2 3 4","0 1 2"],answer:0,explain:"range(2,5) va desde 2 hasta 4, sin incluir el 5."},
+  {trim:2,q:"¿Cuántas veces imprime este código?",code:'c = 0\nwhile c < 3:\n    print(c)\n    c += 1',opts:["2","3","4","Infinitas"],answer:1,explain:"Imprime 0, 1 y 2: tres vueltas, y ahí c ya no es menor a 3."},
+  {trim:2,q:"¿Qué hace break dentro de un bucle?",opts:["Saltea una sola vuelta","Corta el bucle inmediatamente","Reinicia el contador a 0","No hace nada"],answer:1,explain:"break corta el bucle ahí mismo, no importa cuánto faltaba."},
+  {trim:2,q:"¿Qué imprime este código?",code:'f = ["a", "b", "c"]\nf.append("d")\nprint(len(f))',opts:["3","4","2","Error"],answer:1,explain:"append agrega un elemento más: la lista queda con 4."},
+  {trim:2,q:"¿Qué imprime este código?",code:'f = ["a", "b", "c"]\nprint(f[1])',opts:["a","b","c","Error"],answer:1,explain:"Las listas empiezan en 0: f[1] es el segundo elemento, 'b'."},
+  {trim:2,q:"¿Qué imprime la segunda línea?",code:'n = [3, 1, 2]\nprint(sorted(n))\nprint(n)',opts:["[1, 2, 3]","[3, 1, 2]","Error","[2, 1, 3]"],answer:1,explain:"sorted() devuelve una copia ordenada: la lista original n no cambia."},
+  {trim:2,q:"¿Qué método saca el último elemento si no le pasás índice?",opts:["remove()","pop()","extend()","sort()"],answer:1,explain:"pop() sin argumento saca y devuelve el último elemento."},
+
+  // Trimestre 3
+  {trim:3,q:"¿Qué imprime este código?",code:'d = {"a": 1, "b": 2}\nprint(d["a"])',opts:["1","2","a","Error"],answer:0,explain:'Se accede por clave: d["a"] devuelve su valor, 1.'},
+  {trim:3,q:"¿Qué imprime este código?",code:'d = {"a": 1}\nprint(d.get("z"))',opts:["Error","None","0","z"],answer:1,explain:"get() devuelve None si la clave no existe, sin romper el programa."},
+  {trim:3,q:"¿Qué símbolo se usa para crear un diccionario?",opts:["[ ]","( )","{ }","< >"],answer:2,explain:"Los diccionarios (como los conjuntos) usan llaves { }."},
+  {trim:3,q:"¿Qué imprime este código?",code:'d = {"x": 1}\nd.setdefault("x", 99)\nprint(d)',opts:["{'x': 1}","{'x': 99}","{'x': 1, 'x': 99}","Error"],answer:0,explain:"setdefault solo pone el valor si la clave NO existía; x ya tenía 1."},
+  {trim:3,q:"¿Qué devuelve items()?",opts:["Solo las claves","Solo los valores","Pares clave-valor juntos","Un número"],answer:2,explain:"items() te da cada par clave-valor, ideal para un for."},
+  {trim:3,q:"¿Qué imprime este código?",code:'s = {1, 2, 2, 3}\nprint(len(s))',opts:["4","3","2","Error"],answer:1,explain:"Los conjuntos descartan duplicados: quedan {1,2,3}, tres elementos."},
+  {trim:3,q:"¿Qué imprime este código?",code:'a = {1, 2}\nb = {2, 3}\nprint(a & b)',opts:["{1, 2, 3}","{2}","{1, 3}","set()"],answer:1,explain:"& es intersección: devuelve solo lo que está en ambos conjuntos."},
+  {trim:3,q:"¿Qué imprime este código?",code:'print([n for n in range(5) if n % 2 == 0])',opts:["[0, 2, 4]","[1, 3]","[0, 1, 2, 3, 4]","Error"],answer:0,explain:"Filtra solo los pares entre 0 y 4: 0, 2 y 4."},
+  {trim:3,q:"¿Qué imprime print(5 in [1, 2, 3])?",opts:["True","False","Error","5"],answer:1,explain:"5 no está en esa lista, entonces in devuelve False."},
+  {trim:3,q:"¿Qué imprime este código?",code:'import math\nprint(math.floor(4.9))',opts:["5","4","4.9","Error"],answer:1,explain:"floor() redondea siempre hacia abajo: 4.9 pasa a 4."},
+  {trim:3,q:"¿Qué módulo usarías para generar un número al azar?",opts:["math","os","random","sys"],answer:2,explain:"random trae funciones como randint() para elegir al azar."},
+  {trim:3,q:"¿Qué se imprime con este código?",code:'try:\n    print(10 / 0)\nexcept ZeroDivisionError:\n    print("error")\nfinally:\n    print("fin")',opts:["10/0","error, y después fin","fin, y después error","Solo error"],answer:1,explain:"El error se captura primero, y finally corre siempre al final."},
+  {trim:3,q:"¿Cuándo se ejecuta el bloque finally?",opts:["Solo si hay error","Solo si NO hay error","Siempre, haya error o no","Nunca"],answer:2,explain:"finally corre pase lo que pase adentro del try."},
+  {trim:3,q:"¿Qué hace except?",opts:["Detiene el programa sin avisar","Captura el error y ejecuta un plan B","Repite el bloque try","Ignora el finally"],answer:1,explain:"except atrapa el error y deja que el programa siga con otra cosa."}
+];
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const trimrow=document.getElementById('trimrow');
+const nav=document.getElementById('nav');
+const main=document.getElementById('main');
+let current=1;
+
+// trimestre tabs
+TRIMESTRES.forEach(tr=>{
+  const b=document.createElement('button');
+  b.className='trimtab'; b.dataset.t=tr.t;
+  b.innerHTML=`<div class="tt"><span class="badge">T${tr.t}</span> ${tr.unidad} · ${tr.tema}</div><div class="us">${tr.desc}</div>`;
+  b.addEventListener('click',()=>{showTrim(tr.t);if(window.innerWidth<=860)setSidebar(false);});
+  trimrow.appendChild(b);
+});
+
+function showTrim(t){
+  current=t;
+  document.body.dataset.trim=t;
+  // tab states
+  quizNavBtn.classList.remove('on');
+  trimrow.querySelectorAll('.trimtab').forEach(b=>b.classList.toggle('on', +b.dataset.t===t));
+  // build subnav + sections
+  const tr=TRIMESTRES.find(x=>x.t===t);
+  nav.innerHTML='';
+  main.innerHTML=`<div class="unit-band"><div class="eyebrow">Trimestre ${t} · ${tr.unidad}</div><h2 class="u">${tr.tema}</h2><div class="uline"></div></div>`;
+
+  tr.modules.forEach((m,i)=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<button data-go="${m.id}"><span class="n">${i+1}</span>${m.title}</button>`;
+    nav.appendChild(li);
+
+    const sec=document.createElement('section');
+    sec.className='mod'; sec.id=m.id;
+    sec.innerHTML=`
+      <div class="mod-head"><div class="mod-num">${i+1}</div><h3>${m.title}</h3></div>
+      <p class="sub">${m.sub}</p>
+      <p class="lead">${m.lead}</p>
+      <div class="cards">${m.cards.map(c=>`<div class="card"><div class="tag">${c.tag}</div><div class="desc">${c.desc}</div><div class="ex">${c.ex}</div></div>`).join('')}</div>
+      <div class="note ${m.note.warn?'warn':''}">${m.note.warn?'⚠️ ':'💡 '}${m.note.txt}</div>
+      <div class="play">
+        <div class="play-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="file">practica_${m.id}.py</span></div>
+        <textarea class="editor" spellcheck="false">${m.code.replace(/</g,'&lt;')}</textarea>
+        <div class="play-actions"><button class="run">▶ Ejecutar</button><button class="reset">restaurar ejemplo</button></div>
+        <div class="out"><span class="muted">El resultado aparece acá cuando ejecutás ↑</span></div>
+      </div>
+      <div class="quiz">
+        <div class="q">🎯 ${m.quiz.q}</div>
+        <div class="opts">${m.quiz.opts.map((o,idx)=>`<button class="opt" data-i="${idx}"><code>${o.replace(/</g,'&lt;')}</code></button>`).join('')}</div>
+        <div class="fb"></div>
+      </div>`;
+    main.appendChild(sec);
+
+    // quiz wiring
+    const quiz=sec.querySelector('.quiz'), fb=quiz.querySelector('.fb');
+    quiz.querySelectorAll('.opt').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const chosen=+btn.dataset.i;
+        quiz.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+        if(chosen===m.quiz.answer){btn.classList.add('right');fb.textContent=m.quiz.okMsg;fb.className='fb ok';}
+        else{btn.classList.add('wrong');quiz.querySelectorAll('.opt')[m.quiz.answer].classList.add('right');fb.textContent=m.quiz.noMsg;fb.className='fb no';}
+      });
+    });
+    // reset
+    sec.querySelector('.reset').addEventListener('click',()=>{
+      sec.querySelector('.editor').value=m.code;
+      sec.querySelector('.out').innerHTML='<span class="muted">Ejemplo restaurado. Ejecutá para ver el resultado.</span>';
+    });
+  });
+
+  wirePlay();
+  wireNav();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function wireNav(){
+  const navBtns=[...nav.querySelectorAll('button')];
+  navBtns.forEach(b=>b.addEventListener('click',()=>{
+    document.getElementById(b.dataset.go).scrollIntoView({behavior:'smooth',block:'start'});
+    if(window.innerWidth<=860)setSidebar(false);
+  }));
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){navBtns.forEach(b=>b.classList.toggle('on',b.dataset.go===e.target.id));}});
+  },{rootMargin:'-45% 0px -50% 0px'});
+  nav.querySelectorAll('button').forEach(b=>io.observe(document.getElementById(b.dataset.go)));
+}
+
+/* ============================================================
+   PYODIDE
+   ============================================================ */
+let pyodide=null,ready=false;
+const boot=document.getElementById('boot'),bootTxt=document.getElementById('boot-txt');
+async function bootUp(){
+  try{
+    pyodide=await loadPyodide();ready=true;
+    boot.classList.add('done');boot.innerHTML='✓ Python listo';
+    setTimeout(()=>boot.style.display='none',1800);
+  }catch(err){bootTxt.textContent='No se pudo cargar Python (revisá tu conexión)';}
+}
+bootUp();
+
+async function runCode(editor,out){
+  if(!ready){out.innerHTML='<span class="muted">Python todavía se está encendiendo… probá en un segundo.</span>';return;}
+  out.innerHTML='<span class="muted">corriendo…</span>';
+  try{
+    pyodide.runPython('import sys, io\nsys.stdout = io.StringIO()\nsys.stderr = io.StringIO()');
+    await pyodide.runPythonAsync(editor.value);
+    const stdout=pyodide.runPython("sys.stdout.getvalue()");
+    if(stdout.trim()===''){out.innerHTML='<span class="lbl">salida</span><span class="muted">(sin salida — usá print() para mostrar algo)</span>';}
+    else{out.innerHTML='<span class="lbl">salida</span>'+escapeHtml(stdout);}
+  }catch(err){
+    const msg=String(err).split('\n').filter(l=>l.trim()).pop()||String(err);
+    out.innerHTML='<span class="lbl">Python encontró un problema</span><span class="err">'+escapeHtml(msg)+'</span>';
+  }
+}
+function escapeHtml(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+function wirePlay(){
+  document.querySelectorAll('.play').forEach(p=>{
+    if(p.dataset.wired)return; p.dataset.wired='1';
+    const editor=p.querySelector('.editor'),out=p.querySelector('.out'),runBtn=p.querySelector('.run');
+    const doRun=async()=>{runBtn.disabled=true;const t=runBtn.textContent;runBtn.textContent='⏳ ejecutando';await runCode(editor,out);runBtn.disabled=false;runBtn.textContent=t;};
+    runBtn.addEventListener('click',doRun);
+    editor.addEventListener('keydown',e=>{
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();doRun();}
+      if(e.key==='Tab'){e.preventDefault();const s=editor.selectionStart,en=editor.selectionEnd;editor.value=editor.value.slice(0,s)+'    '+editor.value.slice(en);editor.selectionStart=editor.selectionEnd=s+4;}
+    });
+  });
+}
+
+/* ============================================================
+   QUIZ — modo práctica
+   ============================================================ */
+const quizNavBtn=document.getElementById('quizNavBtn');
+let quiz=null;
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+const QUIZ_HISTORY_KEY='quizHistory';
+
+// Pegá acá la URL /exec de tu Apps Script (ver apps-script-historial-quiz.gs) para
+// que cada resultado también se guarde en una Google Sheet compartida. Si la dejás
+// vacía, el historial sigue funcionando solo localmente (localStorage).
+const QUIZ_WEBHOOK_URL='https://script.google.com/macros/s/AKfycbx2rsZrx3JgRr184_TK5LoBh8q16yVO2-Dt8q94YfDQgg_CJ3RlLlf7T0jLWvRsc-4Q/exec';
+
+function loadHistory(){
+  try{return JSON.parse(localStorage.getItem(QUIZ_HISTORY_KEY))||[];}catch(e){return [];}
+}
+function saveHistoryEntry(entry){
+  const h=loadHistory();
+  h.unshift(entry);
+  try{localStorage.setItem(QUIZ_HISTORY_KEY, JSON.stringify(h.slice(0,50)));}catch(e){}
+  sendToSheet(entry);
+}
+function sendToSheet(entry){
+  if(!QUIZ_WEBHOOK_URL) return;
+  // no-cors: no necesitamos leer la respuesta, y evita el preflight CORS
+  // que Apps Script no maneja bien. El envío es "fire and forget": si falla
+  // por lo que sea, el historial local (localStorage) no se ve afectado.
+  fetch(QUIZ_WEBHOOK_URL,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(entry)
+  }).catch(()=>{});
+}
+function trimLabel(sel){
+  return sel==='all' ? 'Los 3 trimestres' : 'Trimestre '+sel;
+}
+function fmtDate(ts){
+  const d=new Date(ts);
+  return d.toLocaleDateString('es-AR',{day:'numeric',month:'short'})+' · '+d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+}
+function renderHistoryBlock(){
+  const h=loadHistory();
+  if(!h.length){
+    return `<div class="qz-history"><div class="qz-history-head"><div class="qz-label" style="margin:0">📋 Tu historial</div></div><p class="qz-empty">Todavía no jugaste ninguna partida. ¡Arrancá una arriba!</p></div>`;
+  }
+  const rows=h.slice(0,15).map(r=>{
+    const cls=r.pct>=90?'good':r.pct>=60?'mid':'low';
+    return `<tr><td>${fmtDate(r.ts)}</td><td>${trimLabel(r.trimSel)}</td><td>${r.score}/${r.total}</td><td class="pct ${cls}">${r.pct}%</td><td>🔥 ${r.bestStreak}</td></tr>`;
+  }).join('');
+  return `<div class="qz-history">
+    <div class="qz-history-head">
+      <div class="qz-label" style="margin:0">📋 Tu historial (${h.length})</div>
+      <button class="qz-clear" id="qzClearHist">Borrar historial</button>
+    </div>
+    <div class="qz-history-wrap">
+      <table>
+        <thead><tr><th>Cuándo</th><th>Trimestre</th><th>Puntaje</th><th>%</th><th>Racha</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+quizNavBtn.addEventListener('click',showQuizSetup);
+
+function showQuizSetup(){
+  trimrow.querySelectorAll('.trimtab').forEach(b=>b.classList.remove('on'));
+  nav.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+  quizNavBtn.classList.add('on');
+  nav.innerHTML='';
+
+  const counts={1:0,2:0,3:0};
+  QUIZ_BANK.forEach(q=>counts[q.trim]++);
+
+  main.innerHTML=`
+    <div class="qz-setup">
+      <div class="unit-band"><div class="eyebrow">Modo Quiz</div><h2 class="u">Practicá lo que aprendiste 🎮</h2><div class="uline"></div></div>
+      <p class="sub" style="margin-top:18px">Elegí de qué trimestre querés preguntas y cuántas. Las preguntas y las opciones salen mezcladas cada vez que jugás.</p>
+
+      <div class="qz-block">
+        <div class="qz-label">Trimestre</div>
+        <div class="qz-chips" id="qzTrimChips">
+          <button class="qz-chip on" data-trim="all">Los 3 trimestres <span class="cnt">(${QUIZ_BANK.length})</span></button>
+          <button class="qz-chip" data-trim="1">Trimestre 1 <span class="cnt">(${counts[1]})</span></button>
+          <button class="qz-chip" data-trim="2">Trimestre 2 <span class="cnt">(${counts[2]})</span></button>
+          <button class="qz-chip" data-trim="3">Trimestre 3 <span class="cnt">(${counts[3]})</span></button>
+        </div>
+      </div>
+
+      <div class="qz-block">
+        <div class="qz-label">Cantidad de preguntas</div>
+        <div class="qz-chips" id="qzLenChips">
+          <button class="qz-chip" data-len="5">5</button>
+          <button class="qz-chip on" data-len="10">10</button>
+          <button class="qz-chip" data-len="15">15</button>
+        </div>
+      </div>
+
+      <button class="qz-start" id="qzStart">▶ Empezar</button>
+
+      ${renderHistoryBlock()}
+    </div>`;
+
+  let selTrim='all', selLen=10;
+  const trimChips=[...document.querySelectorAll('#qzTrimChips .qz-chip')];
+  const lenChips=[...document.querySelectorAll('#qzLenChips .qz-chip')];
+  trimChips.forEach(c=>c.addEventListener('click',()=>{trimChips.forEach(x=>x.classList.remove('on'));c.classList.add('on');selTrim=c.dataset.trim;}));
+  lenChips.forEach(c=>c.addEventListener('click',()=>{lenChips.forEach(x=>x.classList.remove('on'));c.classList.add('on');selLen=+c.dataset.len;}));
+
+  document.getElementById('qzStart').addEventListener('click',()=>startQuiz(selTrim,selLen));
+
+  const clearBtn=document.getElementById('qzClearHist');
+  if(clearBtn){
+    clearBtn.addEventListener('click',()=>{
+      if(confirm('¿Borrar todo el historial de partidas?')){
+        localStorage.removeItem(QUIZ_HISTORY_KEY);
+        showQuizSetup();
+      }
+    });
+  }
+
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(window.innerWidth<=860) setSidebar(false);
+}
+
+function startQuiz(trimSel,len){
+  const pool=trimSel==='all'?QUIZ_BANK:QUIZ_BANK.filter(q=>q.trim===+trimSel);
+  const picked=shuffle(pool).slice(0,Math.min(len,pool.length)).map(q=>{
+    const order=shuffle(q.opts.map((o,i)=>i));
+    return {...q, opts:order.map(i=>q.opts[i]), answer:order.indexOf(q.answer)};
+  });
+  quiz={questions:picked,idx:0,score:0,streak:0,bestStreak:0,trimSel,len};
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion(){
+  const q=quiz.questions[quiz.idx];
+  document.body.dataset.trim=q.trim;
+  const pct=Math.round((quiz.idx/quiz.questions.length)*100);
+
+  main.innerHTML=`
+    <div class="qz-play">
+      <div class="qz-top">
+        <div class="qz-count">Pregunta ${quiz.idx+1} de ${quiz.questions.length}</div>
+        <div class="qz-stats"><span class="qz-streak">🔥 ${quiz.streak}</span><span class="qz-score">✓ ${quiz.score}</span></div>
+      </div>
+      <div class="qz-bar"><i style="width:${pct}%"></i></div>
+      <div class="qz-card">
+        <div class="qz-topic">Trimestre ${q.trim}</div>
+        ${q.code?`<div class="qz-code">${escapeHtml(q.code)}</div>`:''}
+        <div class="qz-q">${q.q}</div>
+        <div class="qz-opts">${q.opts.map((o,i)=>`<button class="qz-opt" data-i="${i}"><code>${escapeHtml(o)}</code></button>`).join('')}</div>
+        <div class="qz-explain" id="qzExplain">💡 ${q.explain}</div>
+        <button class="qz-next" id="qzNext">Siguiente →</button>
+      </div>
+    </div>`;
+
+  const opts=[...document.querySelectorAll('.qz-opt')];
+  opts.forEach(btn=>btn.addEventListener('click',()=>{
+    const chosen=+btn.dataset.i;
+    opts.forEach(b=>b.disabled=true);
+    if(chosen===q.answer){
+      btn.classList.add('right');
+      quiz.score++; quiz.streak++; quiz.bestStreak=Math.max(quiz.bestStreak,quiz.streak);
+    }else{
+      btn.classList.add('wrong');
+      opts[q.answer].classList.add('right');
+      quiz.streak=0;
+    }
+    document.getElementById('qzExplain').classList.add('show');
+    document.getElementById('qzNext').classList.add('show');
+  }));
+
+  document.getElementById('qzNext').addEventListener('click',()=>{
+    quiz.idx++;
+    if(quiz.idx<quiz.questions.length) renderQuizQuestion();
+    else renderQuizResult();
+  });
+
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderQuizResult(){
+  const total=quiz.questions.length;
+  const pct=Math.round((quiz.score/total)*100);
+  let emoji='📚',msg='Repasemos un toque más y la sacamos.';
+  if(pct>=90){emoji='🏆';msg='¡Sos una máquina de Python!';}
+  else if(pct>=70){emoji='🎉';msg='¡Muy bien! Ya la tenés bastante controlada.';}
+  else if(pct>=50){emoji='💪';msg='Vas bien, seguí practicando.';}
+
+  saveHistoryEntry({ts:Date.now(),trimSel:quiz.trimSel,len:quiz.len,score:quiz.score,total,pct,bestStreak:quiz.bestStreak});
+
+  main.innerHTML=`
+    <div class="qz-result">
+      <div class="emoji">${emoji}</div>
+      <h2>${quiz.score} / ${total} correctas</h2>
+      <p class="score">${pct}% de aciertos</p>
+      <p class="streakline">🔥 Mejor racha: ${quiz.bestStreak} seguidas</p>
+      <p class="score" style="margin-top:14px">${msg}</p>
+      <div class="qz-result-actions">
+        <button class="qz-again" id="qzAgain">🔁 Jugar de nuevo</button>
+        <button class="qz-change" id="qzChange">⚙️ Elegir otro trimestre</button>
+      </div>
+    </div>`;
+
+  document.getElementById('qzAgain').addEventListener('click',()=>startQuiz(quiz.trimSel,quiz.len));
+  document.getElementById('qzChange').addEventListener('click',showQuizSetup);
+
+  if(pct>=70) launchConfetti();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function launchConfetti(){
+  const colors=['#5b4b8a','#c9772e','#3a8891','#e07a5f','#e8a838','#7aa83f'];
+  const box=document.createElement('div');
+  box.className='confetti';
+  for(let i=0;i<60;i++){
+    const s=document.createElement('span');
+    s.style.left=Math.random()*100+'vw';
+    s.style.background=colors[Math.floor(Math.random()*colors.length)];
+    s.style.animationDuration=(2+Math.random()*1.5)+'s';
+    s.style.animationDelay=(Math.random()*0.4)+'s';
+    box.appendChild(s);
+  }
+  document.body.appendChild(box);
+  setTimeout(()=>box.remove(),3800);
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+function setSidebar(open){
+  document.body.classList.toggle('sidebar-collapsed', !open);
+  try{localStorage.setItem('sidebarOpen', open ? '1' : '0');}catch(e){}
+}
+document.getElementById('sidebarOpenBtn').addEventListener('click',()=>setSidebar(true));
+document.getElementById('sidebarCloseBtn').addEventListener('click',()=>setSidebar(false));
+document.getElementById('sidebarBackdrop').addEventListener('click',()=>setSidebar(false));
+
+(function initSidebar(){
+  let open=window.innerWidth>860;
+  try{
+    const saved=localStorage.getItem('sidebarOpen');
+    if(saved!==null) open=saved==='1';
+  }catch(e){}
+  setSidebar(open);
+})();
+
+showTrim(1);
+</script>
+</body>
+</html>
