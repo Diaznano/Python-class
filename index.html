@@ -714,9 +714,15 @@ async function runCode(editor,out){
     if(stdout.trim()===''){out.innerHTML='<span class="lbl">salida</span><span class="muted">(sin salida — usá print() para mostrar algo)</span>';}
     else{out.innerHTML='<span class="lbl">salida</span>'+escapeHtml(stdout);}
   }catch(err){
-    const full=String(err);
-    const msg=full.split('\n').filter(l=>l.trim()).pop()||full;
-    const hint=translateError(full);
+    // Pyodide deja String(err)="PythonError"; el traceback real está en el stderr
+    // redirigido, y la clase de error en err.type. Usamos ambos.
+    let trace='';
+    try{ trace=pyodide.runPython("sys.stderr.getvalue()")||''; }catch(e){}
+    const pyType=(err&&err.type)?String(err.type):'';
+    const errLine=[...trace.split('\n')].reverse().map(l=>l.trim())
+      .find(l=>/^[A-Za-z_.]*(Error|Exception|Warning|Interrupt|Exit):/.test(l));
+    const msg=errLine||pyType||String((err&&err.message)||err)||'Error';
+    const hint=translateError(trace+'\n'+pyType);
     out.innerHTML='<span class="lbl">Python encontró un problema</span>'
       +(hint?'<span class="hint">👉 '+escapeHtml(hint)+'</span>':'')
       +'<span class="err">'+escapeHtml(msg)+'</span>';
@@ -726,6 +732,8 @@ async function runCode(editor,out){
 /* Traduce los errores más comunes de Python a una pista en criollo. */
 function translateError(full){
   let m;
+  if(/unterminated string literal|EOL while scanning string literal/.test(full))
+    return "Te faltó cerrar las comillas de un texto. Fijate que cada comilla que abrís también la cierres.";
   if(m=full.match(/NameError: name '(\w+)' is not defined/))
     return `Usaste "${m[1]}" pero nunca lo creaste (o lo escribiste distinto). Fijate que la variable o función exista y esté bien escrita.`;
   if(/IndentationError: expected an indented block/.test(full))
