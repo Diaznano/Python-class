@@ -126,6 +126,7 @@
   .reset:hover{color:#c9c6e0;text-decoration:underline}
   .out{background:#101223;color:#d7f0c0;font-family:'JetBrains Mono',monospace;font-size:.92rem;padding:14px 18px;white-space:pre-wrap;word-break:break-word;min-height:20px;border-top:1px solid #2f3252}
   .out .err{color:#ff8a75}.out .muted{color:#5a5d78}
+  .out .hint{display:block;color:#ffd98a;background:rgba(255,200,90,.1);border-left:3px solid #e8a838;padding:9px 12px;border-radius:8px;margin-bottom:10px;line-height:1.5;font-family:'Segoe UI',system-ui,sans-serif}
   .out .lbl{color:#6f7296;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;display:block;margin-bottom:6px}
 
   .quiz{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:22px 0}
@@ -208,6 +209,19 @@
   .qz-again:hover{background:#493b70}
   .qz-change{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
   .qz-change:hover{border-color:var(--ink)}
+
+  .qz-review{text-align:left;margin-top:44px;padding-top:30px;border-top:1px solid var(--line)}
+  .qz-review-head{font-weight:800;font-size:1.05rem;margin-bottom:18px}
+  .qz-review-item{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-bottom:16px}
+  .qz-review-q{font-weight:700;font-size:.98rem;margin-bottom:14px}
+  .qz-review-ans{display:flex;align-items:center;gap:10px;font-size:.9rem;padding:9px 12px;border-radius:10px;margin-bottom:8px}
+  .qz-review-ans .lbl{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:800;flex-shrink:0}
+  .qz-review-ans code{font-family:'JetBrains Mono',monospace}
+  .qz-review-ans.wrong{background:#fbe9e4}
+  .qz-review-ans.wrong .lbl{color:var(--coral)}
+  .qz-review-ans.right{background:var(--lime-soft)}
+  .qz-review-ans.right .lbl{color:#4d7a1f}
+  .qz-review-exp{margin-top:12px;padding:12px 14px;border-radius:10px;font-size:.9rem;background:var(--grape-soft)}
 
   .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:95}
   .confetti span{position:absolute;top:-20px;width:9px;height:14px;opacity:.9;animation:qzfall linear forwards}
@@ -700,9 +714,47 @@ async function runCode(editor,out){
     if(stdout.trim()===''){out.innerHTML='<span class="lbl">salida</span><span class="muted">(sin salida — usá print() para mostrar algo)</span>';}
     else{out.innerHTML='<span class="lbl">salida</span>'+escapeHtml(stdout);}
   }catch(err){
-    const msg=String(err).split('\n').filter(l=>l.trim()).pop()||String(err);
-    out.innerHTML='<span class="lbl">Python encontró un problema</span><span class="err">'+escapeHtml(msg)+'</span>';
+    const full=String(err);
+    const msg=full.split('\n').filter(l=>l.trim()).pop()||full;
+    const hint=translateError(full);
+    out.innerHTML='<span class="lbl">Python encontró un problema</span>'
+      +(hint?'<span class="hint">👉 '+escapeHtml(hint)+'</span>':'')
+      +'<span class="err">'+escapeHtml(msg)+'</span>';
   }
+}
+
+/* Traduce los errores más comunes de Python a una pista en criollo. */
+function translateError(full){
+  let m;
+  if(m=full.match(/NameError: name '(\w+)' is not defined/))
+    return `Usaste "${m[1]}" pero nunca lo creaste (o lo escribiste distinto). Fijate que la variable o función exista y esté bien escrita.`;
+  if(/IndentationError: expected an indented block/.test(full))
+    return "Falta la sangría: después de un ':' (de un if, for, def, etc.) la línea de adentro tiene que ir con espacios al principio.";
+  if(/IndentationError: unexpected indent/.test(full))
+    return "Sobra sangría: hay espacios de más al principio de una línea que no los necesita.";
+  if(/TypeError: unsupported operand type\(s\) for \+|can only concatenate str/.test(full))
+    return 'Estás mezclando texto y números con "+". Convertí el número a texto con str(), o el texto a número con int().';
+  if(/TypeError: .*not callable/.test(full))
+    return "Intentaste 'llamar' algo que no es una función (le pusiste paréntesis a una variable, o le pisaste el nombre a una función).";
+  if(/TypeError/.test(full))
+    return "Estás operando entre tipos que no se combinan (por ejemplo, un texto con un número). Revisá los tipos de dato.";
+  if(/ZeroDivisionError/.test(full))
+    return "Dividiste por cero, y eso en matemática no existe. Asegurate de que el divisor no sea 0.";
+  if(/IndexError: list index out of range/.test(full))
+    return "Pediste una posición que no existe en la lista. Recordá que empiezan en 0: si tiene 3 elementos, los índices válidos son 0, 1 y 2.";
+  if(m=full.match(/KeyError: '?(\w+)'?/))
+    return `Buscaste la clave "${m[1]}" pero no está en el diccionario. Revisá el nombre, o usá .get() para no romper.`;
+  if(/ValueError: invalid literal for int\(\)/.test(full))
+    return "Intentaste convertir a número con int() algo que no es un número (por ejemplo un texto con letras).";
+  if(/ModuleNotFoundError|ImportError/.test(full))
+    return "Ese módulo no existe o está mal escrito. Revisá el nombre después de 'import'.";
+  if(/AttributeError/.test(full))
+    return "Usaste un método que ese tipo de dato no tiene (o está mal escrito). Revisá el nombre después del punto.";
+  if(/SyntaxError: unexpected EOF|SyntaxError: .*was never closed/.test(full))
+    return "Te quedó algo sin cerrar: revisá que cada paréntesis, corchete o comilla que abrís también lo cierres.";
+  if(/SyntaxError: invalid syntax|SyntaxError/.test(full))
+    return "Hay un error de escritura. Fijate si falta un ':' al final del if/for/def, un paréntesis, o unas comillas.";
+  return null;
 }
 function escapeHtml(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 
@@ -861,7 +913,7 @@ function startQuiz(trimSel,len){
     const order=shuffle(q.opts.map((o,i)=>i));
     return {...q, opts:order.map(i=>q.opts[i]), answer:order.indexOf(q.answer)};
   });
-  quiz={questions:picked,idx:0,score:0,streak:0,bestStreak:0,trimSel,len};
+  quiz={questions:picked,idx:0,score:0,streak:0,bestStreak:0,trimSel,len,wrong:[]};
   renderQuizQuestion();
 }
 
@@ -898,6 +950,7 @@ function renderQuizQuestion(){
       btn.classList.add('wrong');
       opts[q.answer].classList.add('right');
       quiz.streak=0;
+      quiz.wrong.push({...q, chosen});
     }
     document.getElementById('qzExplain').classList.add('show');
     document.getElementById('qzNext').classList.add('show');
@@ -922,6 +975,20 @@ function renderQuizResult(){
 
   saveHistoryEntry({ts:Date.now(),trimSel:quiz.trimSel,len:quiz.len,score:quiz.score,total,pct,bestStreak:quiz.bestStreak});
 
+  const reviewHtml = quiz.wrong.length ? `
+      <div class="qz-review">
+        <div class="qz-review-head">📝 Repasá lo que erraste (${quiz.wrong.length})</div>
+        ${quiz.wrong.map(w=>`
+          <div class="qz-review-item">
+            <div class="qz-topic">Trimestre ${w.trim}</div>
+            ${w.code?`<div class="qz-code">${escapeHtml(w.code)}</div>`:''}
+            <div class="qz-review-q">${w.q}</div>
+            <div class="qz-review-ans wrong"><span class="lbl">Tu respuesta</span><code>${escapeHtml(w.opts[w.chosen])}</code></div>
+            <div class="qz-review-ans right"><span class="lbl">Correcta</span><code>${escapeHtml(w.opts[w.answer])}</code></div>
+            <div class="qz-review-exp">💡 ${w.explain}</div>
+          </div>`).join('')}
+      </div>` : `<p class="score" style="margin-top:6px">✅ ¡No erraste ninguna! Impecable.</p>`;
+
   main.innerHTML=`
     <div class="qz-result">
       <div class="emoji">${emoji}</div>
@@ -933,6 +1000,7 @@ function renderQuizResult(){
         <button class="qz-again" id="qzAgain">🔁 Jugar de nuevo</button>
         <button class="qz-change" id="qzChange">⚙️ Elegir otro trimestre</button>
       </div>
+      ${reviewHtml}
     </div>`;
 
   document.getElementById('qzAgain').addEventListener('click',()=>startQuiz(quiz.trimSel,quiz.len));
