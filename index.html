@@ -45,6 +45,11 @@
   .consolebtn .ic{font-size:1.1rem}
   .consolebtn.on{outline:2px solid var(--ink);outline-offset:2px}
 
+  .gamebtn{display:flex;align-items:center;gap:10px;width:calc(100% - 28px);margin:10px 14px 0;font:inherit;font-weight:800;font-size:.88rem;cursor:pointer;border:none;border-radius:14px;padding:13px 15px;color:#fff;background:linear-gradient(135deg,var(--coral),var(--amber));box-shadow:0 4px 14px rgba(224,122,95,.3);transition:.16s}
+  .gamebtn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(224,122,95,.4)}
+  .gamebtn .ic{font-size:1.1rem}
+  .gamebtn.on{outline:2px solid var(--ink);outline-offset:2px}
+
   .trimtabs .row{display:flex;flex-direction:column;gap:8px;padding:14px}
   .trimtab{font:inherit;cursor:pointer;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:12px 14px;transition:.16s}
   .trimtab .tt{font-weight:800;font-size:.86rem;display:flex;align-items:center;gap:8px}
@@ -223,6 +228,51 @@
   .qz-review-ans.right .lbl{color:#4d7a1f}
   .qz-review-exp{margin-top:12px;padding:12px 14px;border-radius:10px;font-size:.9rem;background:var(--grape-soft)}
 
+  /* Juego de la Oca */
+  .oca-names{display:flex;flex-direction:column;gap:10px}
+  .oca-name-row{display:flex;align-items:center;gap:10px}
+  .oca-name-input{font:inherit;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;flex:1;max-width:300px;background:#fff;color:var(--ink)}
+  .oca-name-input:focus{outline:none;border-color:var(--accent)}
+  .oca-dot{width:16px;height:16px;border-radius:50%;display:inline-block;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+  .oca-wrap{overflow-x:auto;margin:22px 0;padding-bottom:4px}
+  .oca-board{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;min-width:540px}
+  .oca-cell{position:relative;aspect-ratio:1/1;border:1.5px solid var(--line);border-radius:12px;background:#fff;padding:7px;display:flex;flex-direction:column;justify-content:space-between;transition:.16s}
+  .oca-cell.start{background:var(--lime-soft);border-color:var(--lime)}
+  .oca-cell.end{background:var(--grape-soft);border-color:var(--grape)}
+  .oca-cell.landed{box-shadow:0 0 0 3px var(--amber);border-color:var(--amber)}
+  .oca-num{font-size:.74rem;font-weight:800;color:var(--mut);line-height:1}
+  .oca-cell.start .oca-num,.oca-cell.end .oca-num{color:var(--ink);font-size:.66rem}
+  .oca-tokens{display:flex;flex-wrap:wrap;gap:3px;align-content:flex-end}
+  .oca-token{width:15px;height:15px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+  .oca-token.active{outline:2px solid var(--ink);outline-offset:1px;animation:qzpop .3s ease}
+  .oca-panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 4px 18px rgba(26,29,41,.06)}
+  .oca-turn{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+  .oca-turn-who{font-size:1.08rem;font-weight:700;display:flex;align-items:center;gap:9px}
+  .oca-turn-pos{font-size:.85rem;color:var(--mut)}
+  .oca-msg{background:var(--grape-soft);border-radius:10px;padding:10px 14px;font-size:.9rem;margin-bottom:16px}
+  .oca-dice{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .oca-roll{font:inherit;font-weight:800;font-size:1rem;cursor:pointer;border:none;border-radius:12px;padding:14px 24px;color:#fff;background:linear-gradient(135deg,var(--grape),#7a68a8);transition:.14s}
+  .oca-roll:hover{filter:brightness(1.06);transform:translateY(-1px)}
+  .oca-roll.rolling{animation:ocashake .5s ease}
+  @keyframes ocashake{0%,100%{transform:rotate(0)}20%{transform:rotate(-12deg)}40%{transform:rotate(10deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(6deg)}}
+  .oca-or{color:var(--mut);font-size:.85rem;font-weight:700}
+  .oca-manual{display:flex;gap:8px;align-items:center}
+  .oca-manual input{width:74px;font:inherit;padding:12px;border:1.5px solid var(--line);border-radius:10px;text-align:center;background:#fff;color:var(--ink)}
+  .oca-manual input.bad{border-color:var(--coral);background:#fbe9e4}
+  .oca-adv{font:inherit;font-weight:700;cursor:pointer;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:12px 18px;color:var(--ink);transition:.14s}
+  .oca-adv:hover{border-color:var(--ink)}
+  .oca-q-head{font-weight:700;display:flex;align-items:center;gap:9px;margin-bottom:14px;flex-wrap:wrap}
+  .oca-q-fb{margin-top:14px;padding:12px 15px;border-radius:10px;font-size:.9rem;display:none;line-height:1.5}
+  .oca-q-fb.ok{display:block;background:var(--lime-soft)}
+  .oca-q-fb.no{display:block;background:#fbe9e4}
+  .oca-continue{margin-top:16px}
+  .oca-win{text-align:center;padding:12px 6px}
+  .oca-win .emoji{font-size:3.2rem;line-height:1}
+  .oca-win h3{font-size:1.35rem;margin:10px 0 20px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+  .oca-win button{margin:6px}
+  .oca-scoreline{display:flex;gap:14px;flex-wrap:wrap;margin-top:16px;font-size:.85rem;color:var(--mut)}
+  .oca-scoreline span{display:inline-flex;align-items:center;gap:6px}
+
   .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:95}
   .confetti span{position:absolute;top:-20px;width:9px;height:14px;opacity:.9;animation:qzfall linear forwards}
   @keyframes qzfall{to{transform:translateY(110vh) rotate(540deg);opacity:0}}
@@ -249,6 +299,7 @@
   </div>
   <button class="quizbtn" id="quizNavBtn"><span class="ic">🎮</span> Modo Quiz — practicá</button>
   <button class="consolebtn" id="consoleNavBtn"><span class="ic">🐍</span> Consola libre</button>
+  <button class="gamebtn" id="gameNavBtn"><span class="ic">🎲</span> Juego de la Oca</button>
   <div class="trimtabs"><div class="row" id="trimrow"></div></div>
   <nav class="steps"><ul id="nav"></ul></nav>
 </aside>
@@ -624,6 +675,7 @@ function showTrim(t){
   // tab states
   quizNavBtn.classList.remove('on');
   consoleNavBtn.classList.remove('on');
+  gameNavBtn.classList.remove('on');
   trimrow.querySelectorAll('.trimtab').forEach(b=>b.classList.toggle('on', +b.dataset.t===t));
   // build subnav + sections
   const tr=TRIMESTRES.find(x=>x.t===t);
@@ -858,6 +910,7 @@ function showQuizSetup(){
   trimrow.querySelectorAll('.trimtab').forEach(b=>b.classList.remove('on'));
   nav.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
   consoleNavBtn.classList.remove('on');
+  gameNavBtn.classList.remove('on');
   quizNavBtn.classList.add('on');
   nav.innerHTML='';
 
@@ -1047,6 +1100,7 @@ function showConsole(){
   trimrow.querySelectorAll('.trimtab').forEach(b=>b.classList.remove('on'));
   nav.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
   quizNavBtn.classList.remove('on');
+  gameNavBtn.classList.remove('on');
   consoleNavBtn.classList.add('on');
   nav.innerHTML='';
 
@@ -1079,6 +1133,248 @@ function showConsole(){
   wirePlay();
   window.scrollTo({top:0,behavior:'smooth'});
   if(window.innerWidth<=860) setSidebar(false);
+}
+
+/* ============================================================
+   JUEGO DE LA OCA — tablero con preguntas
+   ============================================================ */
+const gameNavBtn=document.getElementById('gameNavBtn');
+const OCA_SIZE=30;            // casillas 0..29 (0=Salida, 29=Meta)
+const OCA_COLS=6;
+const OCA_COLORS=['#5b4b8a','#e07a5f','#3a8891','#e8a838'];
+let oca=null;
+let ocaNames=['','','',''];  // recuerda los nombres entre partidas
+
+gameNavBtn.addEventListener('click',showGame);
+
+function showGame(){
+  trimrow.querySelectorAll('.trimtab').forEach(b=>b.classList.remove('on'));
+  nav.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+  quizNavBtn.classList.remove('on');
+  consoleNavBtn.classList.remove('on');
+  gameNavBtn.classList.add('on');
+  nav.innerHTML='';
+  renderGameSetup();
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(window.innerWidth<=860) setSidebar(false);
+}
+
+function renderGameSetup(){
+  main.innerHTML=`
+    <div class="unit-band"><div class="eyebrow">Juego de la Oca</div><h2 class="u">Aprendé jugando 🎲</h2><div class="uline"></div></div>
+    <p class="lead">Un tablero para jugar entre amigos. En tu turno tirás el dado (o elegís cuánto avanzar) y, al caer en una casilla, respondés una pregunta de cualquier trimestre. Si acertás, te quedás; si fallás, volvés a donde estabas antes de tirar. ¡Gana quien llega primero a la Meta!</p>
+    <div class="qz-block">
+      <div class="qz-label">¿Cuántos jugadores?</div>
+      <div class="qz-chips" id="ocaCountChips">
+        <button class="qz-chip on" data-n="2">2</button>
+        <button class="qz-chip" data-n="3">3</button>
+        <button class="qz-chip" data-n="4">4</button>
+      </div>
+    </div>
+    <div class="qz-block">
+      <div class="qz-label">Nombres (opcional)</div>
+      <div class="oca-names" id="ocaNamesWrap"></div>
+    </div>
+    <button class="qz-start" id="ocaStart">▶ Empezar a jugar</button>`;
+
+  let count=2;
+  const wrap=document.getElementById('ocaNamesWrap');
+  const drawNames=()=>{
+    wrap.innerHTML='';
+    for(let i=0;i<count;i++){
+      const row=document.createElement('div');
+      row.className='oca-name-row';
+      row.innerHTML=`<span class="oca-dot" style="background:${OCA_COLORS[i]}"></span>`+
+        `<input class="oca-name-input" data-i="${i}" maxlength="14" placeholder="Jugador ${i+1}" value="${escapeHtml(ocaNames[i]||'')}">`;
+      wrap.appendChild(row);
+    }
+  };
+  drawNames();
+
+  const chips=[...document.querySelectorAll('#ocaCountChips .qz-chip')];
+  chips.forEach(c=>c.addEventListener('click',()=>{
+    // guardar lo tipeado antes de redibujar
+    document.querySelectorAll('.oca-name-input').forEach(inp=>ocaNames[+inp.dataset.i]=inp.value);
+    chips.forEach(x=>x.classList.remove('on'));c.classList.add('on');count=+c.dataset.n;drawNames();
+  }));
+
+  document.getElementById('ocaStart').addEventListener('click',()=>{
+    const inputs=[...document.querySelectorAll('.oca-name-input')];
+    inputs.forEach(inp=>ocaNames[+inp.dataset.i]=inp.value);
+    const players=inputs.map((inp,i)=>({name:(inp.value.trim()||`Jugador ${i+1}`),hex:OCA_COLORS[i],pos:0}));
+    startGame(players);
+  });
+}
+
+function startGame(players){
+  oca={players,turn:0,phase:'roll',startPos:0,size:OCA_SIZE,q:null,msg:'',landed:-1,pendingOk:false,winner:-1};
+  renderGame();
+}
+
+/* Orden serpenteante: filas pares izq→der, impares der→izq */
+function ocaSerpentine(){
+  const rows=Math.ceil(OCA_SIZE/OCA_COLS), order=[];
+  for(let r=0;r<rows;r++){
+    let idxs=[];
+    for(let c=0;c<OCA_COLS;c++){const n=r*OCA_COLS+c; if(n<OCA_SIZE) idxs.push(n);}
+    if(r%2===1) idxs.reverse();
+    order.push(...idxs);
+  }
+  return order;
+}
+function ocaCellHtml(n){
+  const isStart=n===0, isEnd=n===OCA_SIZE-1;
+  const label=isStart?'Salida':isEnd?'Meta 🏁':n;
+  const cls='oca-cell'+(isStart?' start':'')+(isEnd?' end':'')+(n===oca.landed?' landed':'');
+  return `<div class="${cls}" data-cell="${n}"><span class="oca-num">${label}</span><div class="oca-tokens" data-tok="${n}"></div></div>`;
+}
+function buildBoardHtml(){
+  return `<div class="oca-wrap"><div class="oca-board">${ocaSerpentine().map(ocaCellHtml).join('')}</div></div>`;
+}
+function placeTokens(){
+  document.querySelectorAll('.oca-tokens').forEach(t=>t.innerHTML='');
+  oca.players.forEach((p,i)=>{
+    const cont=document.querySelector(`.oca-tokens[data-tok="${p.pos}"]`);
+    if(!cont) return;
+    const d=document.createElement('span');
+    d.className='oca-token'+((i===oca.turn&&oca.phase!=='over')?' active':'');
+    d.style.background=p.hex; d.title=p.name;
+    cont.appendChild(d);
+  });
+}
+function ocaScoreline(){
+  return `<div class="oca-scoreline">${oca.players.map(p=>
+    `<span><span class="oca-dot" style="background:${p.hex}"></span>${escapeHtml(p.name)}: casilla ${p.pos}</span>`).join('')}</div>`;
+}
+
+function pickGameQuestion(){
+  const base=QUIZ_BANK[Math.floor(Math.random()*QUIZ_BANK.length)];
+  const order=shuffle(base.opts.map((o,i)=>i));
+  return {...base, opts:order.map(i=>base.opts[i]), answer:order.indexOf(base.answer)};
+}
+
+function buildPanelHtml(){
+  if(oca.phase==='over'){
+    const w=oca.players[oca.winner];
+    return `<div class="oca-win">
+      <div class="emoji">🏆</div>
+      <h3><span class="oca-dot" style="background:${w.hex}"></span> ¡${escapeHtml(w.name)} ganó!</h3>
+      <button class="qz-again" id="ocaAgain">🔁 Revancha</button>
+      <button class="qz-change" id="ocaNew">⚙️ Nueva partida</button>
+    </div>`;
+  }
+  const p=oca.players[oca.turn];
+  if(oca.phase==='question'){
+    const q=oca.q;
+    return `<div class="oca-q">
+      <div class="oca-q-head"><span class="oca-dot" style="background:${p.hex}"></span> ${escapeHtml(p.name)} cayó en la casilla ${p.pos}</div>
+      <div class="qz-topic">Trimestre ${q.trim}</div>
+      ${q.code?`<div class="qz-code">${escapeHtml(q.code)}</div>`:''}
+      <div class="qz-q">${q.q}</div>
+      <div class="qz-opts">${q.opts.map((o,i)=>`<button class="qz-opt" data-i="${i}"><code>${escapeHtml(o)}</code></button>`).join('')}</div>
+      <div class="oca-q-fb" id="ocaFb"></div>
+      <button class="qz-next oca-continue" id="ocaContinue">Continuar →</button>
+    </div>`;
+  }
+  // phase 'roll'
+  return `<div class="oca-turn">
+      <div class="oca-turn-who"><span class="oca-dot" style="background:${p.hex}"></span> Turno de <b>${escapeHtml(p.name)}</b></div>
+      <div class="oca-turn-pos">Estás en la casilla ${p.pos}${p.pos===0?' (Salida)':''}</div>
+    </div>
+    ${oca.msg?`<div class="oca-msg">${oca.msg}</div>`:''}
+    <div class="oca-dice">
+      <button class="oca-roll" id="ocaRoll">🎲 Tirar el dado</button>
+      <span class="oca-or">o</span>
+      <div class="oca-manual">
+        <input type="number" min="1" max="6" id="ocaManual" placeholder="1-6">
+        <button class="oca-adv" id="ocaAdv">Avanzar</button>
+      </div>
+    </div>`;
+}
+
+function renderGame(){
+  main.innerHTML=`
+    <div class="unit-band"><div class="eyebrow">Juego de la Oca</div><h2 class="u">Tablero 🎲</h2><div class="uline"></div></div>
+    ${buildBoardHtml()}
+    <div class="oca-panel">${buildPanelHtml()}</div>
+    ${ocaScoreline()}`;
+  placeTokens();
+  wireGamePanel();
+}
+
+function wireGamePanel(){
+  if(oca.phase==='over'){
+    const a=document.getElementById('ocaAgain'), n=document.getElementById('ocaNew');
+    a&&a.addEventListener('click',()=>{oca.players.forEach(p=>p.pos=0);oca.turn=0;oca.phase='roll';oca.msg='';oca.landed=-1;oca.winner=-1;renderGame();});
+    n&&n.addEventListener('click',showGame);
+    return;
+  }
+  if(oca.phase==='question'){ wireGameQuestion(); return; }
+  // phase 'roll'
+  const roll=document.getElementById('ocaRoll');
+  roll&&roll.addEventListener('click',()=>{
+    roll.classList.add('rolling'); roll.disabled=true;
+    doGameMove(1+Math.floor(Math.random()*6), true);
+  });
+  const adv=document.getElementById('ocaAdv'), inp=document.getElementById('ocaManual');
+  adv&&adv.addEventListener('click',()=>{
+    const v=parseInt(inp.value,10);
+    if(!(v>=1&&v<=6)){inp.classList.add('bad');inp.focus();return;}
+    doGameMove(v, false);
+  });
+  inp&&inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();adv.click();}});
+  inp&&inp.addEventListener('input',()=>inp.classList.remove('bad'));
+}
+
+function doGameMove(steps, wasDice){
+  const p=oca.players[oca.turn];
+  oca.startPos=p.pos;
+  let np=p.pos+steps;
+  if(np>oca.size-1) np=oca.size-1;
+  p.pos=np;
+  oca.landed=np;
+  oca.q=pickGameQuestion();
+  oca.phase='question';
+  renderGame();
+}
+
+function wireGameQuestion(){
+  const opts=[...document.querySelectorAll('.oca-q .qz-opt')];
+  const fb=document.getElementById('ocaFb');
+  const cont=document.getElementById('ocaContinue');
+  opts.forEach(btn=>btn.addEventListener('click',()=>{
+    const chosen=+btn.dataset.i, q=oca.q, p=oca.players[oca.turn];
+    opts.forEach(b=>b.disabled=true);
+    if(chosen===q.answer){
+      btn.classList.add('right');
+      oca.pendingOk=true;
+      fb.className='oca-q-fb ok';
+      fb.innerHTML=`✅ ¡Correcto! ${q.explain} <b>Te quedás en la casilla ${p.pos}.</b>`;
+    }else{
+      btn.classList.add('wrong');
+      opts[q.answer].classList.add('right');
+      oca.pendingOk=false;
+      fb.className='oca-q-fb no';
+      fb.innerHTML=`❌ La correcta era <code>${escapeHtml(q.opts[q.answer])}</code>. ${q.explain} <b>Volvés a la casilla ${oca.startPos}.</b>`;
+    }
+    cont.classList.add('show');
+  }));
+  cont&&cont.addEventListener('click',resolveGameAnswer);
+}
+
+function resolveGameAnswer(){
+  const p=oca.players[oca.turn];
+  if(oca.pendingOk){
+    if(p.pos===oca.size-1){ oca.phase='over'; oca.winner=oca.turn; oca.landed=-1; renderGame(); launchConfetti(); return; }
+    oca.msg=`✅ ${escapeHtml(p.name)} acertó y se queda en la casilla ${p.pos}.`;
+  }else{
+    p.pos=oca.startPos;
+    oca.msg=`❌ ${escapeHtml(p.name)} falló y vuelve a la casilla ${oca.startPos}.`;
+  }
+  oca.landed=-1;
+  oca.phase='roll';
+  oca.turn=(oca.turn+1)%oca.players.length;
+  renderGame();
 }
 
 /* ============================================================
