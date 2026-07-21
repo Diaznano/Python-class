@@ -272,6 +272,22 @@
   .oca-win button{margin:6px}
   .oca-scoreline{display:flex;gap:14px;flex-wrap:wrap;margin-top:16px;font-size:.85rem;color:var(--mut)}
   .oca-scoreline span{display:inline-flex;align-items:center;gap:6px}
+  /* fichas con inicial */
+  .oca-token{width:20px;height:20px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;color:#fff;font-size:.62rem;font-weight:800;box-shadow:0 1px 3px rgba(0,0,0,.4);transition:transform .12s}
+  .oca-token.active{outline:2px solid var(--ink);outline-offset:1px;transform:scale(1.15)}
+  .oca-cell.landed{box-shadow:0 0 0 3px var(--amber);border-color:var(--amber);animation:ocaLand .45s ease}
+  @keyframes ocaLand{0%{transform:scale(1)}45%{transform:scale(1.08)}100%{transform:scale(1)}}
+  .oca-cell:not(.start):not(.end){background:linear-gradient(160deg,#fff,#faf8f2)}
+  /* dado con puntitos */
+  .oca-die{width:58px;height:58px;background:#fff;border:2px solid var(--ink);border-radius:13px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2px;padding:8px;box-shadow:0 3px 9px rgba(0,0,0,.18);flex-shrink:0}
+  .oca-die .pip{border-radius:50%;background:transparent}
+  .oca-die .pip.on{background:var(--ink)}
+  .oca-die.rolling{animation:dieRoll .16s linear}
+  @keyframes dieRoll{0%{transform:rotate(0) scale(1)}50%{transform:rotate(90deg) scale(1.12)}100%{transform:rotate(0) scale(1)}}
+  /* boton de sonido */
+  .oca-sound{position:absolute;top:0;right:0;font:inherit;font-size:1.15rem;cursor:pointer;background:#fff;border:1.5px solid var(--line);border-radius:11px;width:42px;height:42px;display:grid;place-items:center;transition:.14s}
+  .oca-sound:hover{border-color:var(--ink)}
+  .oca-head{position:relative}
 
   .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:95}
   .confetti span{position:absolute;top:-20px;width:9px;height:14px;opacity:.9;animation:qzfall linear forwards}
@@ -546,6 +562,37 @@ const QUIZ_BANK = [
   {trim:1,q:"¿Qué valor booleano representa el 0?",opts:["True","False","None","Error"],answer:1,explain:"El 0 se considera False; cualquier otro número es True."},
   {trim:1,q:"¿Qué imprime este código?",code:'a = 3\nb = 4\nprint(a * b + 1)',opts:["13","12","19","7"],answer:0,explain:"Primero 3*4=12, después +1 = 13."},
 
+  {trim:1,q:"¿Qué imprime este código?",code:'print("A")\nprint("B")',opts:["A B","AB","A\nB","A"],answer:2,explain:"Cada print() escribe en su propia línea."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print("2" * 3)',opts:["6","222","2 2 2","Error"],answer:1,explain:"Un texto por un número se repite: '2' tres veces."},
+  {trim:1,q:"¿Para qué sirven los comentarios (#)?",opts:["Para que el código corra más rápido","Para dejar notas que Python ignora","Para imprimir texto","Para crear variables"],answer:1,explain:"Son notas para las personas; Python los ignora."},
+  {trim:1,q:"¿Qué imprime este código?",code:'a = "Hola"\nb = "mundo"\nprint(a + " " + b)',opts:["Hola mundo","Holamundo","a b","Hola + mundo"],answer:0,explain:"El + une textos; agregamos un espacio en el medio."},
+  {trim:1,q:"¿Cuál de estos es un nombre de variable válido?",opts:["mi variable","1nombre","precio_final","class"],answer:2,explain:"Sin espacios, no empieza con número y no es una palabra reservada."},
+  {trim:1,q:"¿Qué imprime este código?",code:'x = 7\ny = 2\nprint(x % y)',opts:["3","1","3.5","0"],answer:1,explain:"% es el resto: 7 = 3·2 + 1."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print(2 + 3 ** 2)',opts:["25","11","13","10"],answer:1,explain:"Primero la potencia (3**2=9), después 2+9=11."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print(15 // 4)',opts:["3","3.75","4","3.7"],answer:0,explain:"// es división entera: descarta los decimales, queda 3."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print(type(2 + 3.0))',opts:["<class 'int'>","<class 'float'>","<class 'str'>","Error"],answer:1,explain:"Si mezclás un int con un float, el resultado es float."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print(10 - 4 * 2)',opts:["12","2","8","6"],answer:1,explain:"Primero la multiplicación (4*2=8), después 10-8=2."},
+  {trim:1,q:"¿Qué imprime este código?",code:'x = 5\nx += 3\nprint(x)',opts:["5","3","8","53"],answer:2,explain:"x += 3 es lo mismo que x = x + 3: queda 8."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print(type(True))',opts:["<class 'bool'>","<class 'int'>","<class 'str'>","True"],answer:0,explain:"True y False son del tipo bool."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print(not (3 > 5))',opts:["True","False","None","Error"],answer:0,explain:"3 > 5 es False, y not lo invierte a True."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print((5 > 3) and (2 > 4))',opts:["True","False","None","Error"],answer:1,explain:"and pide las dos: la segunda (2>4) es False, así que da False."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print("Sol" + "cito")',opts:["Sol cito","Solcito","Sol+cito","Error"],answer:1,explain:"El + pega los dos textos sin espacio: 'Solcito'."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print(5 ** 2)',opts:["10","25","7","52"],answer:1,explain:"** es potencia: 5 al cuadrado es 25."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print(int("100") + 1)',opts:["1001","101","Error","100"],answer:1,explain:"int(\"100\") pasa el texto a número: 100 + 1 = 101."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print(str(3) + str(4))',opts:["7","34","'34'","Error"],answer:1,explain:"str() los vuelve texto, y el + los concatena: '34'."},
+  {trim:1,q:"¿Qué imprime este código?",code:'def saludo():\n    return "hola"\nprint(saludo())',opts:["saludo","hola","None","Error"],answer:1,explain:"La función devuelve 'hola' con return y print lo muestra."},
+  {trim:1,q:"¿Qué imprime este código?",code:'def area(b, h):\n    return b * h / 2\nprint(area(4, 3))',opts:["12","6.0","7","6"],answer:1,explain:"4*3/2 = 6.0 (la división / siempre da float)."},
+  {trim:1,q:"¿Cuántos parámetros recibe def promedio(a, b, c):?",opts:["1","2","3","4"],answer:2,explain:"Recibe tres: a, b y c."},
+  {trim:1,q:"¿Qué devuelve una función que hace solo 'return' (sin valor)?",opts:["0","None","Un error","Un texto vacío"],answer:1,explain:"Un return vacío (o sin return) devuelve None."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print(7 >= 7)',opts:["True","False","7","Error"],answer:0,explain:">= es 'mayor o igual': 7 es igual a 7, así que True."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print("hola" == "Hola")',opts:["True","False","Error","hola"],answer:1,explain:"Las mayúsculas importan: 'hola' y 'Hola' son distintos."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print(False or True)',opts:["True","False","None","Error"],answer:0,explain:"Con or alcanza que una sea True: la segunda lo es."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print((2 + 3) * 2)',opts:["7","10","12","8"],answer:1,explain:"Los paréntesis van primero: (2+3)=5, después 5*2=10."},
+  {trim:1,q:"¿Qué operador compara si dos valores son iguales?",opts:["=","==","!=","=>"],answer:1,explain:"= asigna; == compara si son iguales."},
+  {trim:1,q:"¿Qué imprime este código?",code:'nombre = "Ana"\nedad = 15\nprint(nombre, "tiene", edad)',opts:["Ana tiene 15","nombre tiene edad","Ana tiene edad","Ana 15"],answer:0,explain:"print reemplaza cada variable por su valor y los separa con espacio."},
+  {trim:1,q:"¿Qué imprime este código?",code:'def suma(a, b):\n    return a + b\nprint(suma(suma(1, 2), 3))',opts:["6","5","123","Error"],answer:0,explain:"suma(1,2) da 3, y suma(3,3) da 6."},
+  {trim:1,q:"¿Qué imprime este código?",code:'print(3 == 3.0)',opts:["True","False","Error","3"],answer:0,explain:"Python compara el valor: 3 y 3.0 valen lo mismo."},
+
   // Trimestre 2
   {trim:2,q:"¿Qué imprime este código?",code:'n = 3\nif n > 5:\n    print("grande")\nelif n > 0:\n    print("positivo")\nelse:\n    print("negativo")',opts:["grande","positivo","negativo","Nada"],answer:1,explain:"3 no es mayor a 5, pero sí mayor a 0: entra en el elif."},
   {trim:2,q:"¿Qué diferencia hay entre elif y else?",opts:["elif necesita su propia condición, else no","Son exactamente lo mismo","else siempre va primero","elif solo puede usarse una vez"],answer:0,explain:"else no evalúa nada, es el \"en cualquier otro caso\"."},
@@ -599,6 +646,37 @@ const QUIZ_BANK = [
   {trim:2,q:"¿Qué método devuelve la posición de un elemento en la lista?",opts:["find()","index()","pos()","search()"],answer:1,explain:"index() devuelve el índice donde está ese valor."},
   {trim:2,q:"¿Qué imprime este código?",code:'l = [3, 1, 2]\nl.pop(0)\nprint(l)',opts:["[3, 1, 2]","[1, 2]","[3, 1]","[3, 2]"],answer:1,explain:"pop(0) saca el elemento de la posición 0 (el 3)."},
 
+  {trim:2,q:"¿Qué imprime este código?",code:'edad = 16\nif edad >= 18:\n    print("mayor")\nelse:\n    print("menor")',opts:["mayor","menor","16","Error"],answer:1,explain:"16 no llega a 18, entra en el else."},
+  {trim:2,q:"¿Qué imprime este código?",code:'x = 8\nif x > 5 and x < 10:\n    print("entre 5 y 10")\nelse:\n    print("no")',opts:["entre 5 y 10","no","Error","8"],answer:0,explain:"8 cumple las dos condiciones, entra en el if."},
+  {trim:2,q:"¿Cuándo se ejecuta el bloque else de un if?",opts:["Siempre","Cuando la condición del if es falsa","Cuando es verdadera","Nunca"],answer:1,explain:"El else corre solo si la condición del if no se cumplió."},
+  {trim:2,q:"¿Qué imprime este código?",code:'for i in range(0, 6, 2):\n    print(i)',opts:["0 2 4","0 1 2","2 4 6","0 2 4 6"],answer:0,explain:"Va de 0 a 5 saltando de 2 en 2: 0, 2 y 4."},
+  {trim:2,q:"¿Qué imprime este código?",code:'total = 0\nfor n in range(1, 5):\n    total += n\nprint(total)',opts:["10","15","4","1234"],answer:0,explain:"Suma 1+2+3+4 = 10."},
+  {trim:2,q:"¿Qué imprime este código?",code:'l = [3, 1, 3, 2, 3]\nprint(l.count(3))',opts:["2","3","5","1"],answer:1,explain:"count(3) cuenta cuántas veces aparece el 3: tres."},
+  {trim:2,q:"¿Qué imprime este código?",code:'l = [4, 8, 1, 6]\nprint(max(l))',opts:["1","8","6","4"],answer:1,explain:"max() devuelve el elemento más grande: 8."},
+  {trim:2,q:"¿Qué imprime este código?",code:'l = [4, 8, 1, 6]\nprint(min(l))',opts:["1","8","4","6"],answer:0,explain:"min() devuelve el más chico: 1."},
+  {trim:2,q:"¿Qué imprime este código?",code:'l = [10, 20, 30]\nprint(sum(l))',opts:["60","30","102030","3"],answer:0,explain:"sum() suma todos los elementos: 60."},
+  {trim:2,q:"¿Qué imprime este código?",code:'l = [1, 2, 3]\nprint(l[::-1])',opts:["[1, 2, 3]","[3, 2, 1]","[3, 1, 2]","Error"],answer:1,explain:"El slice [::-1] devuelve la lista al revés."},
+  {trim:2,q:"¿Qué imprime este código?",code:'l = [1, 2, 3, 4, 5]\nprint(l[:3])',opts:["[1, 2, 3]","[1, 2]","[3, 4, 5]","[4, 5]"],answer:0,explain:"[:3] toma desde el principio hasta el índice 2."},
+  {trim:2,q:"¿Qué imprime este código?",code:'l = [1, 2, 3, 4, 5]\nprint(l[-2:])',opts:["[4, 5]","[1, 2]","[5]","[3, 4, 5]"],answer:0,explain:"[-2:] toma los dos últimos elementos."},
+  {trim:2,q:"¿Qué imprime este código?",code:'print([1, 2] + [3, 4])',opts:["[1, 2, 3, 4]","[4, 6]","[[1,2],[3,4]]","Error"],answer:0,explain:"El + entre listas las une en una sola."},
+  {trim:2,q:"¿Qué imprime este código?",code:'print([0] * 3)',opts:["[0, 3]","[0, 0, 0]","[3]","0 0 0"],answer:1,explain:"Multiplicar una lista por 3 repite sus elementos."},
+  {trim:2,q:"¿Qué imprime este código?",code:'print(len([]))',opts:["0","1","None","Error"],answer:0,explain:"Una lista vacía tiene 0 elementos."},
+  {trim:2,q:"¿Qué imprime este código?",code:'print(7 in [1, 2, 3])',opts:["True","False","7","Error"],answer:1,explain:"El 7 no está en esa lista: in da False."},
+  {trim:2,q:"¿Qué imprime este código?",code:'c = 0\nfor i in range(3):\n    for j in range(2):\n        c += 1\nprint(c)',opts:["5","6","3","2"],answer:1,explain:"3 vueltas por 2 vueltas = 6."},
+  {trim:2,q:"¿Qué imprime este código?",code:'l = [5, 2, 9, 1]\nprint(sorted(l, reverse=True))',opts:["[1, 2, 5, 9]","[9, 5, 2, 1]","[5, 2, 9, 1]","Error"],answer:1,explain:"sorted con reverse=True ordena de mayor a menor."},
+  {trim:2,q:"¿Qué imprime este código?",code:'i = 5\nwhile i > 0:\n    print(i)\n    i -= 2',opts:["5 3 1","5 4 3 2 1","5 3","4 2 0"],answer:0,explain:"Empieza en 5 y baja de a 2: 5, 3, 1 (después 1-2=-1 corta)."},
+  {trim:2,q:"¿Qué imprime este código?",code:'for i in range(5):\n    if i == 2:\n        continue\n    print(i)',opts:["0 1 2 3 4","0 1 3 4","0 1 2","2"],answer:1,explain:"continue saltea solo la vuelta del 2; el resto se imprime."},
+  {trim:2,q:"¿Qué imprime este código?",code:'l = [1, 2, 3]\nx = l.pop()\nprint(x)',opts:["1","3","[1, 2]","None"],answer:1,explain:"pop() sin índice saca y devuelve el último: 3."},
+  {trim:2,q:"¿Qué imprime este código?",code:'l = ["a", "b", "c"]\ndel l[0]\nprint(l)',opts:["['a', 'b', 'c']","['b', 'c']","['a', 'c']","['a', 'b']"],answer:1,explain:"del l[0] borra el elemento de la posición 0."},
+  {trim:2,q:"¿Qué imprime este código?",code:'l = [1, 2]\nl += [3]\nprint(l)',opts:["[1, 2, 3]","[1, 2, [3]]","[3]","Error"],answer:0,explain:"+= en una lista agrega los elementos, como extend."},
+  {trim:2,q:"¿Qué imprime este código?",code:'nota = 4\nif nota >= 9:\n    print("excelente")\nelif nota >= 6:\n    print("aprobado")\nelse:\n    print("a recuperar")',opts:["excelente","aprobado","a recuperar","Nada"],answer:2,explain:"4 no llega a 6, cae en el else."},
+  {trim:2,q:"¿Qué imprime este código?",code:'x = 3\nif x == 1 or x == 3:\n    print("sí")\nelse:\n    print("no")',opts:["sí","no","Error","3"],answer:0,explain:"or se cumple porque x == 3 es verdadero."},
+  {trim:2,q:"¿Qué imprime este código?",code:'palabras = ["sol", "mar"]\nfor p in palabras:\n    print(p)',opts:["sol mar","['sol', 'mar']","sol\nmar","p\np"],answer:2,explain:"El for recorre la lista e imprime cada palabra en su línea."},
+  {trim:2,q:"¿Qué imprime este código?",code:'c = 3\nwhile c > 0:\n    print("va")\n    c -= 1',opts:["va (una vez)","va va va","va va va va","Infinito"],answer:1,explain:"Se repite 3 veces (c = 3, 2, 1)."},
+  {trim:2,q:"¿Qué imprime este código?",code:'for i in range(3):\n    if i == 1:\n        break\n    print(i)',opts:["0","0 1","0 1 2","1"],answer:0,explain:"Imprime 0 y al llegar a 1 el break corta."},
+  {trim:2,q:"¿Qué hace la palabra global dentro de una función?",opts:["Crea una variable nueva","Permite modificar una variable de afuera","Borra la variable","Repite el código"],answer:1,explain:"global le dice a la función que use (y pueda cambiar) la variable de afuera."},
+  {trim:2,q:"¿Qué imprime este código?",code:'l = [1, 2, 3]\nprint(l.index(2))',opts:["0","1","2","3"],answer:1,explain:"index(2) devuelve la posición del 2, que es 1."},
+
   // Trimestre 3
   {trim:3,q:"¿Qué imprime este código?",code:'d = {"a": 1, "b": 2}\nprint(d["a"])',opts:["1","2","a","Error"],answer:0,explain:'Se accede por clave: d["a"] devuelve su valor, 1.'},
   {trim:3,q:"¿Qué imprime este código?",code:'d = {"a": 1}\nprint(d.get("z"))',opts:["Error","None","0","z"],answer:1,explain:"get() devuelve None si la clave no existe, sin romper el programa."},
@@ -650,6 +728,36 @@ const QUIZ_BANK = [
   {trim:3,q:"¿Qué imprime este código?",code:'try:\n    print("ok")\nexcept:\n    print("error")',opts:["ok","error","ok\nerror","Nada"],answer:0,explain:"No hay ningún error, así que corre el try normalmente."},
   {trim:3,q:"¿Qué error se produce al acceder a una clave que no existe con d[clave]?",opts:["ValueError","KeyError","IndexError","TypeError"],answer:1,explain:"Buscar una clave inexistente con d[clave] lanza KeyError."},
   {trim:3,q:"¿Qué error da acceder a lista[10] si la lista tiene 3 elementos?",opts:["KeyError","IndexError","ValueError","No da error"],answer:1,explain:"Un índice fuera de rango en una lista lanza IndexError."},
+  {trim:3,q:"¿Qué imprime este código?",code:'d = {"a": 1, "b": 2, "c": 3}\nprint(sum(d.values()))',opts:["6","3","abc","Error"],answer:0,explain:"values() da 1, 2 y 3; sum() los suma = 6."},
+  {trim:3,q:"¿Qué imprime este código?",code:'d = {"x": 10}\nprint(d.get("x"))',opts:["10","None","x","Error"],answer:0,explain:"get('x') devuelve el valor de la clave x: 10."},
+  {trim:3,q:"¿Qué imprime este código?",code:'d = {"a": 1, "b": 2}\nprint("c" in d)',opts:["True","False","c","Error"],answer:1,explain:"in busca la clave 'c', que no existe: False."},
+  {trim:3,q:"¿Qué imprime este código?",code:'d = {"a": 1, "b": 2}\nx = d.pop("a")\nprint(x)',opts:["1","a","{'b': 2}","Error"],answer:0,explain:"pop('a') saca esa clave y devuelve su valor: 1."},
+  {trim:3,q:"¿Qué imprime este código?",code:'d = {"a": 1, "b": 2}\nfor k, v in d.items():\n    print(k, v)',opts:["a b","1 2","a 1\nb 2","(a,1)"],answer:2,explain:"items() da pares clave-valor; se imprime cada uno."},
+  {trim:3,q:"¿Qué imprime este código?",code:'d = {"a": 1}\nd["a"] += 5\nprint(d["a"])',opts:["1","5","6","Error"],answer:2,explain:"d['a'] valía 1; += 5 lo deja en 6."},
+  {trim:3,q:"¿Qué imprime este código?",code:'s = {1, 2, 3, 2, 1}\nprint(s)',opts:["{1, 2, 3, 2, 1}","{1, 2, 3}","[1, 2, 3]","Error"],answer:1,explain:"Un set descarta los repetidos: quedan {1, 2, 3}."},
+  {trim:3,q:"¿Qué imprime este código?",code:'a = {1, 2}\nb = {3, 4}\nprint(a & b)',opts:["{1, 2, 3, 4}","set()","{1, 2}","Error"],answer:1,explain:"No comparten elementos: la intersección es un set vacío."},
+  {trim:3,q:"¿Qué imprime este código?",code:'s = {1, 2, 3}\ns.add(4)\nprint(len(s))',opts:["3","4","5","Error"],answer:1,explain:"add(4) agrega un elemento nuevo: pasa a 4."},
+  {trim:3,q:"¿Qué diferencia hay entre remove() y discard() en un set?",opts:["Ninguna","remove() da error si el elemento no está; discard() no","discard() ordena","remove() agrega"],answer:1,explain:"Si el elemento no existe, remove() rompe pero discard() no hace nada."},
+  {trim:3,q:"¿Qué imprime este código?",code:'print([n ** 2 for n in range(4)])',opts:["[0, 1, 4, 9]","[0, 2, 4, 6]","[1, 4, 9, 16]","[0, 1, 2, 3]"],answer:0,explain:"Eleva al cuadrado 0,1,2,3 → 0,1,4,9."},
+  {trim:3,q:"¿Qué imprime este código?",code:'print([n for n in range(10) if n > 6])',opts:["[7, 8, 9]","[6, 7, 8, 9]","[7, 8, 9, 10]","[0, 1, 2]"],answer:0,explain:"Filtra los mayores a 6 entre 0 y 9: 7, 8 y 9."},
+  {trim:3,q:"¿Qué imprime este código?",code:'print(abs(-8))',opts:["-8","8","0","Error"],answer:1,explain:"abs() devuelve el valor absoluto (sin signo): 8."},
+  {trim:3,q:"¿Qué imprime este código?",code:'print(round(3.7))',opts:["3","4","3.7","Error"],answer:1,explain:"round() redondea al entero más cercano: 4."},
+  {trim:3,q:"¿Qué imprime este código?",code:'import math\nprint(math.floor(3.9))',opts:["3","4","3.9","Error"],answer:0,explain:"floor() redondea siempre para abajo: 3."},
+  {trim:3,q:"¿Qué imprime este código?",code:'import math\nprint(math.pow(2, 3))',opts:["6","8.0","9","23"],answer:1,explain:"pow(2,3) es 2 al cubo = 8.0 (float)."},
+  {trim:3,q:"¿Qué función de random mezcla una lista?",opts:["random.mix()","random.shuffle()","random.sort()","random.mezcla()"],answer:1,explain:"shuffle() reordena la lista al azar."},
+  {trim:3,q:"¿Qué imprime este código?",code:'try:\n    x = 10\nexcept:\n    print("error")\nelse:\n    print("todo bien")',opts:["error","todo bien","10","Nada"],answer:1,explain:"No hubo error, así que corre el bloque else."},
+  {trim:3,q:"¿Qué error da este código?",code:'d = {"a": 1}\nprint(d["b"])',opts:["IndexError","KeyError","ValueError","No da error"],answer:1,explain:"Acceder a una clave inexistente en un diccionario da KeyError."},
+  {trim:3,q:"¿Qué imprime este código?",code:'try:\n    print(int("5") + 1)\nexcept ValueError:\n    print("mal")',opts:["6","mal","5","Error"],answer:0,explain:"int(\"5\") vale 5, no hay error: imprime 6."},
+  {trim:3,q:"¿Qué imprime este código?",code:'d = {"a": 1, "b": 2, "c": 3}\nprint(len(d))',opts:["2","3","6","1"],answer:1,explain:"len() cuenta los pares: hay 3."},
+  {trim:3,q:"¿Qué imprime este código?",code:'print(list({3, 1, 2}))',opts:["[3, 1, 2]","[1, 2, 3]","{1, 2, 3}","Error"],answer:1,explain:"list() de un set devuelve sus elementos ordenados de menor a mayor."},
+  {trim:3,q:"¿Qué imprime este código?",code:'a = {1, 2, 3}\nb = {2, 3, 4}\nprint(a | b)',opts:["{2, 3}","{1, 2, 3, 4}","{1, 4}","set()"],answer:1,explain:"| es la unión: junta todos los elementos sin repetir."},
+  {trim:3,q:"¿Qué imprime este código?",code:'nombres = ["ana", "leo"]\nprint([n.upper() for n in nombres])',opts:["['ANA', 'LEO']","['ana', 'leo']","ANA LEO","Error"],answer:0,explain:"La comprensión pone cada nombre en mayúsculas con upper()."},
+  {trim:3,q:"¿Cómo se accede al valor de la clave 'edad' en un diccionario d?",opts:["d.edad","d('edad')","d[\"edad\"]","d->edad"],answer:2,explain:"Se usa corchetes con la clave entre comillas: d[\"edad\"]."},
+  {trim:3,q:"¿Qué imprime este código?",code:'d = {"a": 1}\nd.update({"b": 2, "c": 3})\nprint(len(d))',opts:["1","2","3","4"],answer:2,explain:"update() agregó dos claves más: total 3."},
+  {trim:3,q:"¿Qué imprime este código?",code:'try:\n    l = [1, 2]\n    print(l[5])\nexcept IndexError:\n    print("fuera de rango")',opts:["2","fuera de rango","Error","[1, 2]"],answer:1,explain:"l[5] no existe: salta IndexError y se imprime el mensaje."},
+  {trim:3,q:"¿Qué imprime este código?",code:'d = {"x": 1, "y": 2}\nprint(list(d.keys()))',opts:["['x', 'y']","[1, 2]","{'x', 'y'}","Error"],answer:0,explain:"keys() da las claves; list() las pone en una lista."},
+  {trim:3,q:"¿Para qué sirve el bloque finally en un try?",opts:["Solo corre si hay error","Solo si no hay error","Corre siempre, haya error o no","Nunca corre"],answer:2,explain:"finally se ejecuta siempre, pase lo que pase en el try."},
+  {trim:3,q:"¿Qué imprime este código?",code:'d = {}\nd["puntos"] = 0\nd["puntos"] += 10\nprint(d["puntos"])',opts:["0","10","puntos","Error"],answer:1,explain:"Arranca en 0 y le sumamos 10: queda 10."},
 ];
 
 /* ============================================================
@@ -1145,6 +1253,43 @@ const OCA_COLORS=['#5b4b8a','#e07a5f','#3a8891','#e8a838'];
 let oca=null;
 let ocaNames=['','','',''];  // recuerda los nombres entre partidas
 
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* Motor de sonido con Web Audio: sin archivos, funciona sin internet. */
+const SFX_KEY='sfxMuted';
+const sfx={
+  ctx:null, muted:false,
+  init(){ try{this.muted=localStorage.getItem(SFX_KEY)==='1';}catch(e){} },
+  ac(){ if(this.muted)return null;
+    if(!this.ctx){try{this.ctx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}}
+    if(this.ctx.state==='suspended')this.ctx.resume();
+    return this.ctx; },
+  tone(freq,dur,type,vol,when){ const ac=this.ac(); if(!ac)return;
+    const t=ac.currentTime+(when||0), o=ac.createOscillator(), g=ac.createGain();
+    o.type=type||'sine'; o.frequency.value=freq; o.connect(g); g.connect(ac.destination);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(vol||0.2,t+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.start(t); o.stop(t+dur+0.03); },
+  seq(notes,type,vol){ let t=0; notes.forEach(n=>{this.tone(n.f,n.d,type,vol,t); t+=n.d*0.92;}); },
+  dice(){ for(let i=0;i<5;i++)this.tone(180+Math.random()*420,0.05,'square',0.07,i*0.058); },
+  hop(){ this.tone(560,0.09,'sine',0.16); },
+  correct(){ this.seq([{f:523,d:0.11},{f:659,d:0.11},{f:784,d:0.18}],'sine',0.18); },
+  wrong(){ this.seq([{f:311,d:0.15},{f:220,d:0.24}],'sawtooth',0.14); },
+  win(){ this.seq([{f:523,d:0.13},{f:659,d:0.13},{f:784,d:0.13},{f:1047,d:0.32}],'triangle',0.2); },
+  toggle(){ this.muted=!this.muted; try{localStorage.setItem(SFX_KEY,this.muted?'1':'0');}catch(e){} return this.muted; }
+};
+sfx.init();
+
+/* Dibuja las caras del dado (1-6) como puntitos en una grilla 3x3. */
+function dicePips(n){
+  const faces={1:[5],2:[1,9],3:[1,5,9],4:[1,3,7,9],5:[1,3,5,7,9],6:[1,3,4,6,7,9]};
+  const on=new Set(faces[n]||[5]);
+  let html='';
+  for(let i=1;i<=9;i++) html+=`<span class="pip${on.has(i)?' on':''}"></span>`;
+  return html;
+}
+
 gameNavBtn.addEventListener('click',showGame);
 
 function showGame(){
@@ -1161,7 +1306,7 @@ function showGame(){
 
 function renderGameSetup(){
   main.innerHTML=`
-    <div class="unit-band"><div class="eyebrow">Juego de la Oca</div><h2 class="u">Aprendé jugando 🎲</h2><div class="uline"></div></div>
+    <div class="oca-head"><div class="unit-band"><div class="eyebrow">Juego de la Oca</div><h2 class="u">Aprendé jugando 🎲</h2><div class="uline"></div></div>${ocaSoundBtnHtml()}</div>
     <p class="lead">Un tablero para jugar entre amigos. En tu turno tirás el dado (o elegís cuánto avanzar) y, al caer en una casilla, respondés una pregunta de cualquier trimestre. Si acertás, te quedás; si fallás, volvés a donde estabas antes de tirar. ¡Gana quien llega primero a la Meta!</p>
     <div class="qz-block">
       <div class="qz-label">¿Cuántos jugadores?</div>
@@ -1190,6 +1335,7 @@ function renderGameSetup(){
     }
   };
   drawNames();
+  wireSoundBtn();
 
   const chips=[...document.querySelectorAll('#ocaCountChips .qz-chip')];
   chips.forEach(c=>c.addEventListener('click',()=>{
@@ -1207,7 +1353,7 @@ function renderGameSetup(){
 }
 
 function startGame(players){
-  oca={players,turn:0,phase:'roll',startPos:0,size:OCA_SIZE,q:null,msg:'',landed:-1,pendingOk:false,winner:-1};
+  oca={players,turn:0,phase:'roll',startPos:0,size:OCA_SIZE,q:null,msg:'',landed:-1,pendingOk:false,winner:-1,lastRoll:1,busy:false};
   renderGame();
 }
 
@@ -1239,8 +1385,14 @@ function placeTokens(){
     const d=document.createElement('span');
     d.className='oca-token'+((i===oca.turn&&oca.phase!=='over')?' active':'');
     d.style.background=p.hex; d.title=p.name;
+    d.textContent=(p.name.trim()[0]||'?').toUpperCase();
     cont.appendChild(d);
   });
+}
+/* Actualiza solo fichas + casilla resaltada, sin reconstruir el panel. */
+function paintBoard(){
+  placeTokens();
+  document.querySelectorAll('.oca-cell').forEach(c=>c.classList.toggle('landed', +c.dataset.cell===oca.landed));
 }
 function ocaScoreline(){
   return `<div class="oca-scoreline">${oca.players.map(p=>
@@ -1283,6 +1435,7 @@ function buildPanelHtml(){
     </div>
     ${oca.msg?`<div class="oca-msg">${oca.msg}</div>`:''}
     <div class="oca-dice">
+      <div class="oca-die" id="ocaDie">${dicePips(oca.lastRoll||1)}</div>
       <button class="oca-roll" id="ocaRoll">🎲 Tirar el dado</button>
       <span class="oca-or">o</span>
       <div class="oca-manual">
@@ -1292,13 +1445,22 @@ function buildPanelHtml(){
     </div>`;
 }
 
+function ocaSoundBtnHtml(){
+  return `<button class="oca-sound" id="ocaSound" title="${sfx.muted?'Activar':'Silenciar'} sonido">${sfx.muted?'🔇':'🔊'}</button>`;
+}
+function wireSoundBtn(){
+  const b=document.getElementById('ocaSound');
+  b&&b.addEventListener('click',()=>{ const m=sfx.toggle(); b.textContent=m?'🔇':'🔊'; b.title=(m?'Activar':'Silenciar')+' sonido'; if(!m)sfx.hop(); });
+}
+
 function renderGame(){
   main.innerHTML=`
-    <div class="unit-band"><div class="eyebrow">Juego de la Oca</div><h2 class="u">Tablero 🎲</h2><div class="uline"></div></div>
+    <div class="oca-head"><div class="unit-band"><div class="eyebrow">Juego de la Oca</div><h2 class="u">Tablero 🎲</h2><div class="uline"></div></div>${ocaSoundBtnHtml()}</div>
     ${buildBoardHtml()}
     <div class="oca-panel">${buildPanelHtml()}</div>
     ${ocaScoreline()}`;
-  placeTokens();
+  paintBoard();
+  wireSoundBtn();
   wireGamePanel();
 }
 
@@ -1311,13 +1473,10 @@ function wireGamePanel(){
   }
   if(oca.phase==='question'){ wireGameQuestion(); return; }
   // phase 'roll'
-  const roll=document.getElementById('ocaRoll');
-  roll&&roll.addEventListener('click',()=>{
-    roll.classList.add('rolling'); roll.disabled=true;
-    doGameMove(1+Math.floor(Math.random()*6), true);
-  });
-  const adv=document.getElementById('ocaAdv'), inp=document.getElementById('ocaManual');
+  const roll=document.getElementById('ocaRoll'), adv=document.getElementById('ocaAdv'), inp=document.getElementById('ocaManual');
+  roll&&roll.addEventListener('click',()=>{ if(oca.busy)return; doGameMove(1+Math.floor(Math.random()*6), true); });
   adv&&adv.addEventListener('click',()=>{
+    if(oca.busy)return;
     const v=parseInt(inp.value,10);
     if(!(v>=1&&v<=6)){inp.classList.add('bad');inp.focus();return;}
     doGameMove(v, false);
@@ -1326,15 +1485,42 @@ function wireGamePanel(){
   inp&&inp.addEventListener('input',()=>inp.classList.remove('bad'));
 }
 
-function doGameMove(steps, wasDice){
+async function doGameMove(steps, wasDice){
+  if(oca.busy) return;
+  oca.busy=true;
   const p=oca.players[oca.turn];
   oca.startPos=p.pos;
-  let np=p.pos+steps;
-  if(np>oca.size-1) np=oca.size-1;
-  p.pos=np;
-  oca.landed=np;
+  const target=Math.min(p.pos+steps, oca.size-1);
+  const roll=document.getElementById('ocaRoll'), adv=document.getElementById('ocaAdv');
+  roll&&(roll.disabled=true); adv&&(adv.disabled=true);
+
+  if(wasDice){
+    // animación del dado: gira mostrando caras al azar y frena en el número
+    const die=document.getElementById('ocaDie');
+    sfx.dice();
+    for(let i=0;i<9;i++){
+      if(die){die.innerHTML=dicePips(1+Math.floor(Math.random()*6));die.classList.add('rolling');}
+      await wait(70);
+      die&&die.classList.remove('rolling');
+    }
+    die&&(die.innerHTML=dicePips(steps));
+    oca.lastRoll=steps;
+    await wait(180);
+  }else{
+    oca.lastRoll=steps;
+  }
+
+  // salto casilla por casilla
+  for(let pos=p.pos+1; pos<=target; pos++){
+    p.pos=pos; oca.landed=pos;
+    paintBoard();
+    sfx.hop();
+    await wait(190);
+  }
+  oca.landed=target;
   oca.q=pickGameQuestion();
   oca.phase='question';
+  oca.busy=false;
   renderGame();
 }
 
@@ -1348,12 +1534,14 @@ function wireGameQuestion(){
     if(chosen===q.answer){
       btn.classList.add('right');
       oca.pendingOk=true;
+      sfx.correct();
       fb.className='oca-q-fb ok';
       fb.innerHTML=`✅ ¡Correcto! ${q.explain} <b>Te quedás en la casilla ${p.pos}.</b>`;
     }else{
       btn.classList.add('wrong');
       opts[q.answer].classList.add('right');
       oca.pendingOk=false;
+      sfx.wrong();
       fb.className='oca-q-fb no';
       fb.innerHTML=`❌ La correcta era <code>${escapeHtml(q.opts[q.answer])}</code>. ${q.explain} <b>Volvés a la casilla ${oca.startPos}.</b>`;
     }
@@ -1365,7 +1553,7 @@ function wireGameQuestion(){
 function resolveGameAnswer(){
   const p=oca.players[oca.turn];
   if(oca.pendingOk){
-    if(p.pos===oca.size-1){ oca.phase='over'; oca.winner=oca.turn; oca.landed=-1; renderGame(); launchConfetti(); return; }
+    if(p.pos===oca.size-1){ oca.phase='over'; oca.winner=oca.turn; oca.landed=-1; renderGame(); sfx.win(); launchConfetti(); return; }
     oca.msg=`✅ ${escapeHtml(p.name)} acertó y se queda en la casilla ${p.pos}.`;
   }else{
     p.pos=oca.startPos;
